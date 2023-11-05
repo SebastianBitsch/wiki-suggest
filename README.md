@@ -39,29 +39,5 @@ module load
 ### Notes
 - Since HPC already has a lot of packages, it is often easier to just to: ```module load ...``` 
 - Data is stored in /work3/s204163/
-- 
-
-### Reading chunks of large files
-```python
-import bz2
-
-CHUNK_SIZE = 1024 * 1024 * 1024 # 1GB
-
-with bz2.BZ2File('/work3/s204163/enwiki-20080103.main.bz2', 'r') as f:
-    while True:
-        chunk = f.read(CHUNK_SIZE)
-        if not chunk:  # End of file
-            break
-        # Process chunk here, e.g., parse the lines and analyze the data
-        lines = chunk.decode('utf-8').split('\n')
-        for line in lines:
-            pass
-```
-
-```python
-chunk_iter = pd.read_csv("/work3/s204163/enwiki-20080103.main.bz2", compression='bz2', chunksize = CHUNK_SIZE, delimiter='\t', ...)
-
-for chunk_df in chunk_iter:
-    pass
-
-```
+- For printing a couple of lines (for debugging etc.) use the command ```bzcat /work3/s204163/enwiki-20080103.main.bz2 | head -n 4902767 | tail -n 4```. Prints line 4902767 - 4902771
+- Get the number of lines with ```bzcat /work3/s204163/enwiki-20080103.main.bz2 | wc -l```. Took +4 hours, result: 1.632.271.984 lines

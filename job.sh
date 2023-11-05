@@ -11,13 +11,10 @@
 # -- end of LSF options --
 
 ### -- specify queue -- 
-#BSUB -q gpua100
+#BSUB -q hpc
 
 ### -- ask for number of cores -- 
 #BSUB -n 1
-
-### -- Select the resources: 1 gpu in exclusive process mode --
-#BSUB -gpu "num=1:mode=exclusive_process"
 
 ### -- specify that the cores must be on the same host -- 
 #BSUB -R "span[hosts=1]"
