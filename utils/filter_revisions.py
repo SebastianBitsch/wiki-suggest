@@ -3,7 +3,7 @@ import bz2
 # https://stackoverflow.com/a/28712742
 import sys
 sys.path.insert(0, '..')
-from read_revisions import groups, parse_line
+from utils.read_data import groups, parse_line
 
 # TODO: Could be parallel
 

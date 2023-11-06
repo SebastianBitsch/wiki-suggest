@@ -212,3 +212,12 @@ def read_index_file(file_path: str) -> dict:
             row_number, byte_position = map(int, line.strip().split(', '))
             index[row_number] = byte_position
     return index
+
+
+def read_articles_file(file_path: str) -> dict:
+    """ Read the index file for the revisions """
+    articles = {}
+    
+    # TODO: Implement
+
+    return articles
