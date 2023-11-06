@@ -44,6 +44,7 @@ module load pandas/1.4.4-python-3.10.7
 
 ```
 getquota_zhome.sh
+du -h --max-depth=1 --apparent $HOME
 ```
 ```
 module avail
@@ -54,4 +55,4 @@ module load
 - Since HPC already has a lot of packages, it is often easier to just to: ```module load ...``` 
 - Data is stored in /work3/s204163/wiki
 - For printing a couple of lines (for debugging etc.) use the command ```bzcat /work3/s204163/wiki/wiki-revisions-dataset.bz2 | head -n 4902767 | tail -n 4```. Prints line 4902767 - 4902771
-- Get the number of lines with ```bzcat /work3/s204163/work/wiki-revisions-dataset.bz2 | wc -l```. Took +4 hours, result: 1632271984 lines
+- Get the number of lines with ```bzcat /work3/s204163/wiki/wiki-revisions-dataset.bz2 | wc -l```. Took +4 hours, result: 1632271984 lines
