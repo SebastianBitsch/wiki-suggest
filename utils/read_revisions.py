@@ -5,11 +5,11 @@ from random import randint
 import pandas as pd
 import bz2
 
-# Prefizes of the properties, see: https://snap.stanford.edu/data/wiki-meta.html
+# Prefixes of the properties, see: https://snap.stanford.edu/data/wiki-meta.html
 PREFIXES = ["CATEGORY", "IMAGE ", "MAIN", "TALK", "USER ", "USER_TALK", "OTHER", "EXTERNAL", "TEMPLATE", "COMMENT", "MINOR", "TEXTDATA"]
 
 ROWS_PER_REVISION = 14                      # The number of rows in a single revision object, should never change
-REVISIONS_PER_INDEX = 1000                  # How many revisions should there be between indexing
+REVISIONS_PER_INDEX = 50                    # How many revisions should there be between indexing
 N_ROWS = 1632271984                         # The number of rows in the .bz2 file, takes hours to calculate
 N_REVISIONS = N_ROWS // ROWS_PER_REVISION   # The number of revisions, each revision is 14 rows long
 
@@ -96,7 +96,7 @@ def _read_revisions_between(file_path: str, start: int = None, end: int = None) 
         revisions = []
 
         # Get the position of the index 
-        index = read_index_file("/work3/s204163/wiki/index_file") # TODO: Move elsewhere
+        index = read_index_file(f"/work3/s204163/wiki/index_file{REVISIONS_PER_INDEX}") # TODO: Move elsewhere
         index_number, index_byte_position = byte_position_of_closest_index(index, start)
 
         # Go to the location of the closest index number
@@ -117,7 +117,7 @@ def _read_revisions_between(file_path: str, start: int = None, end: int = None) 
 # OBS OBS OBS TODO: Takes 90 seconds to grab 10 random revisions, should be revised to be faster
 def _read_revisions_random(file_path: str, N: int = None) -> pd.DataFrame:
     """ """
-    index = read_index_file("/work3/s204163/wiki/index_file") # TODO: Move elsewhere
+    index = read_index_file(f"/work3/s204163/wiki/index_file{REVISIONS_PER_INDEX}") # TODO: Move elsewhere
     n_indices = len(index)
     revisions = []
 
@@ -145,8 +145,8 @@ def parse_line(line: tuple) -> dict:
     """ Parse a single line (a tuple) into a dictionary"""
     # Split the line and revision-field for at least a bit of readability
     revision, category, _image, main, _talk, _user, _user_talk, other, _external, _template, comment, minor, textdata, _ = line
-    revision_tag, article_id, revision_id, article_title, timestamp, username, user_id = revision.split()
-
+    revision_tag, article_id, revision_id, article_title, timestamp, username, user_id = revision.split(" ")
+    
     assert revision_tag == "REVISION" # Sanity check
 
     # This code looks kinda horrendous, but does what it should in a concise and fast way. dont hate
@@ -199,7 +199,7 @@ def byte_position_of_closest_index(index: dict, current_position: int) -> int:
     row 1000. We want to get the index number and its byte position in the file.
     """
     index_number = round_down(current_position)
-    index_byte_position = index[index_number] #TODO: 1000 shouldn't be hardcoded
+    index_byte_position = index[index_number]
 
     return (index_number, index_byte_position)
 

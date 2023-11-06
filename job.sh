@@ -6,8 +6,8 @@
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
 
-#BSUB -o logs/crete_index_%J.out
-#BSUB -e logs/crete_index_%J.err
+#BSUB -o logs/filter_revisions_%J.out
+#BSUB -e logs/filter_revisions_%J.err
 # -- end of LSF options --
 
 ### -- specify queue -- 
@@ -34,4 +34,4 @@
 
 source .env/bin/activate
 cd utils
-python3 create_index.py
+python3 filter_revisions.py
