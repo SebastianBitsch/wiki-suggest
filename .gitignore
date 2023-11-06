@@ -2,5 +2,5 @@
 /logs
 __pycache__
 
-.data
-.private
+data
+private
