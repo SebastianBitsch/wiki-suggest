@@ -214,10 +214,22 @@ def read_index_file(file_path: str) -> dict:
     return index
 
 
-def read_articles_file(file_path: str) -> dict:
-    """ Read the index file for the revisions """
+def read_articles_file(file_path: str, N: int = None) -> dict:
+    """
+    Create a dictionary of article-id : (title, text) pairs of every article in the good texts dataset.
+    Option to only read N articles
+    """
     articles = {}
     
-    # TODO: Implement
+    with open(file_path, 'r', encoding="utf-8") as file:
+        for i, line in enumerate(file):
+
+            # Check if we are only fetching a subset of the data
+            if N and N <= i:
+                break
+            article_id, article_title, article_text = line.split('||||') # Using ||| because no way it is anywhere in the dataset - right?, update: there isnt
+
+            # Write to dictionary
+            articles[int(article_id)] = (article_title, article_text)
 
     return articles

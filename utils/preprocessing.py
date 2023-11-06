@@ -1,5 +1,6 @@
 import json
 import zipfile
+import string
 
 def extract_article_texts(zip_path:str) -> dict:
     """
@@ -10,7 +11,7 @@ def extract_article_texts(zip_path:str) -> dict:
     articles = {}
 
     with zipfile.ZipFile(zip_path, 'r') as z:
-        for _, file_info in enumerate(z.infolist()):
+        for file_info in z.infolist():
 
             # We ignore meta.json and images and read only text.json
             if file_info.filename.endswith('text.json'):
@@ -21,10 +22,18 @@ def extract_article_texts(zip_path:str) -> dict:
                     
                     # Use article_id as key and text as value
                     key = data['id']
-                    text = (data['title'], data['text']) # TODO: text cleaning !!!
+                    text = (clean(data['title']), clean(data['text'])) # TODO: text cleaning !!!
                     
                     articles[key] = text
     return articles
+
+
+def clean(text: str) -> str:
+    """ Function to clean a text corpus that could contain anything"""
+    # TODO: Actual text cleaning / processing - these two steps are just to make the text loading work
+    text = text.replace("\n", " ")
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    return text
 
 
 if __name__ == "__main__":
