@@ -21,7 +21,7 @@ def extract_article_texts(zip_path:str) -> dict:
                     
                     # Use article_id as key and text as value
                     key = data['id']
-                    text = " ||| ".join((data['title'], data['text'])) # TODO: text cleaning !!!
+                    text = (data['title'], data['text']) # TODO: text cleaning !!!
                     
                     articles[key] = text
     return articles
@@ -32,12 +32,12 @@ if __name__ == "__main__":
     articles = extract_article_texts(file_path)
 
     # Save the article texts as id, text
-    with open('/work3/s204163/wiki/article_texts1', 'w') as f:
-        for article_id, article_text in articles.items():
-            f.write(f"{article_id}, {article_text}\n")
+    with open('/work3/s204163/wiki/article_texts', 'w') as f:
+        for article_id, (article_title, article_text) in articles.items():
+            f.write(f"{article_id}||||{article_title}||||{article_text}\n") # Using ||||, because no way it is written anywhere on wiki - hopefully
 
     # Save all the ids as a "list"
-    with open('/work3/s204163/wiki/article_ids1', 'w') as f:
+    with open('/work3/s204163/wiki/article_ids', 'w') as f:
         for article_id, _ in articles.items():
             f.write(f"{article_id}\n")
 
