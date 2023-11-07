@@ -7,6 +7,7 @@ import bz2
 
 # Prefixes of the properties, see: https://snap.stanford.edu/data/wiki-meta.html
 PREFIXES = ["CATEGORY", "IMAGE ", "MAIN", "TALK", "USER ", "USER_TALK", "OTHER", "EXTERNAL", "TEMPLATE", "COMMENT", "MINOR", "TEXTDATA"]
+DELIMITER = '||||' # Using ||| because no way it is anywhere in the dataset - right?, update: there isnt
 
 ROWS_PER_REVISION = 14                      # The number of rows in a single revision object, should never change
 REVISIONS_PER_INDEX = 50                    # How many revisions should there be between indexing
@@ -227,7 +228,7 @@ def read_articles_file(file_path: str, N: int = None) -> dict:
             # Check if we are only fetching a subset of the data
             if N and N <= i:
                 break
-            article_id, article_title, article_text = line.split('||||') # Using ||| because no way it is anywhere in the dataset - right?, update: there isnt
+            article_id, article_title, article_text = line.split(DELIMITER)
 
             # Write to dictionary
             articles[int(article_id)] = (article_title, article_text)
