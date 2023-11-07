@@ -31,7 +31,16 @@ class Revision_User_Graph:
     # Opens a local server for viewing the graph
     def visualize(self):
         nw.visualize(self.graph)
+        
+    
+    # Set weights between nodes
+    # TODO - Given an integer, set the weights of the graph
+    def set_weights(self, weight: int):
+        raise NotImplementedError("Not implemented yet")
 
+    # TODO - Method for calculating weights between nodes
+    def calculate_weights(self):
+        raise NotImplementedError("Not implemented yet")
 
 if __name__ == "__main__":
     print("Hello World")
