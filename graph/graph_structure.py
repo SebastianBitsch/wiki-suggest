@@ -1,8 +1,13 @@
+import sys
+import os
+
 import networkx as nx
 import netwulf as nw
-from utils.read_data import read_revisions
-import os
+
+from read_data import read_revisions
+
 from dataclasses import dataclass
+
 
 @dataclass
 class Revision:
@@ -13,8 +18,6 @@ class Revision:
 
 # Create a graph
 class Revision_User_Graph:
-    
-
     def __init__(self):
         self.graph = nx.Graph()
 
