@@ -1,6 +1,7 @@
 import json
 import zipfile
-import string
+
+DELIMITER = '||||'  # Using ||||, because no way it is written anywhere on wiki - hopefully
 
 def extract_article_texts(zip_path:str) -> dict:
     """
@@ -32,7 +33,6 @@ def clean(text: str) -> str:
     """ Function to clean a text corpus that could contain anything"""
     # TODO: Actual text cleaning / processing - these two steps are just to make the text loading work
     text = text.replace("\n", " ")
-    text = text.translate(str.maketrans('', '', string.punctuation))
     return text
 
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # Save the article texts as id, text
     with open('/work3/s204163/wiki/article_texts', 'w') as f:
         for article_id, (article_title, article_text) in articles.items():
-            f.write(f"{article_id}||||{article_title}||||{article_text}\n") # Using ||||, because no way it is written anywhere on wiki - hopefully
+            f.write(f"{article_id}{DELIMITER}{article_title}{DELIMITER}{article_text}\n")
 
     # Save all the ids as a "list"
     with open('/work3/s204163/wiki/article_ids', 'w') as f:
