@@ -2,6 +2,7 @@
 .venv
 /logs
 __pycache__
+wiki_suggests.egg-info
 
 data
 private
