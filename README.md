@@ -7,6 +7,7 @@
 1. Load python3.10 from HPC [list of modules](https://www.hpc.dtu.dk/?page_id=282)
 ```bash
 module load python3/3.10.7
+module load matplotlib/3.6.0-numpy-1.23.3-python-3.10.7
 ```
 2. Create virtual enviornment
 ```bash
@@ -24,6 +25,11 @@ python -m pip  install -r requirements.txt
 module load python3/3.10.7
 module load pandas/1.4.4-python-3.10.7
 ...
+```
+
+4. To make imports across folders possible we are using a `setup.py` and `__init__.py` files. Install using:
+```bash
+pip install -e .
 ```
 
 ### Data on scratch
