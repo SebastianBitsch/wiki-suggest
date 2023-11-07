@@ -1,9 +1,6 @@
 import bz2
 
-# https://stackoverflow.com/a/28712742
-import sys
-sys.path.insert(0, '..')
-from utils.read_data import groups, parse_line
+from read_data import groups, parse_line
 
 # TODO: Could be parallel, would be a nice to have feature for report
 
