@@ -4,6 +4,7 @@ from random import randint
 
 import pandas as pd
 import bz2
+from tqdm import tqdm
 
 # Prefixes of the properties, see: https://snap.stanford.edu/data/wiki-meta.html
 PREFIXES = ["CATEGORY", "IMAGE ", "MAIN", "TALK", "USER ", "USER_TALK", "OTHER", "EXTERNAL", "TEMPLATE", "COMMENT", "MINOR", "TEXTDATA"]
@@ -82,7 +83,7 @@ def _read_revisions_from_start(file_path: str, N: int = None) -> pd.DataFrame:
         revisions = []
     
         # There are EXACTLY 14 fields in every revision, we group / bundle them together in a tuple for speed
-        for i, line in enumerate(groups(file, 14)):
+        for i, line in tqdm(enumerate(groups(file, 14)), total=N):
             if N <= i:
                 break
 
@@ -104,7 +105,7 @@ def _read_revisions_between(file_path: str, start: int = None, end: int = None) 
         file.seek(index_byte_position)
 
         # There are EXACTLY 14 fields in every revision, we group / bundle them together in a tuple for speed
-        for i, line in enumerate(groups(file, 14), start = index_number):
+        for i, line in tqdm(enumerate(groups(file, 14), start = index_number), total=(end-start)):
             if i < start:
                 continue
             if end <= i:
@@ -123,7 +124,7 @@ def _read_revisions_random(file_path: str, N: int = None) -> pd.DataFrame:
     revisions = []
 
     with bz2.open(file_path, 'rt') as file:
-        for _ in range(N):
+        for _ in tqdm(range(N)):
             random_index = randint(0, n_indices - 1)
             random_offset = randint(0, REVISIONS_PER_INDEX)
 
