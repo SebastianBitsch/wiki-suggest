@@ -139,9 +139,9 @@ if __name__ == "__main__":
             total_mem = edge_mem + node_mem
             
             # Edge, node and total memory
-            print(f"Edge memory: {edge_mem} B, {edge_mem/1024:.2f} KB, {edge_mem/(1024**2):.2f} MB, {edge_mem/(1024**3):.2f} GB")
-            print(f"Node memory: {node_mem} B, {node_mem/1024:.2f} KB, {node_mem/(1024**2):.2f} MB, {node_mem/(1024**3):.2f} GB,")
-            print(f"Total memory: {total_mem} B, {total_mem/1024:.2f} KB , {total_mem/(1024**2):.2f} MB , {total_mem/(1024**3):.2f} GB")
+            print(f"Edge memory:  {edge_mem:>12.0f} B, {edge_mem/1024:>9.0f} KB, {edge_mem/(1024**2):>10.1f} MB, {edge_mem/(1024**3):>5.2f} GB")
+            print(f"Node memory:  {node_mem:>12.0f} B, {node_mem/1024:>9.0f} KB, {node_mem/(1024**2):>10.1f} MB, {node_mem/(1024**3):>5.2f} GB")
+            print(f"Total memory: {total_mem:>12.0f} B, {total_mem/1024:>9.0f} KB, {total_mem/(1024**2):>10.1f} MB, {total_mem/(1024**3):>5.2f} GB")
             
             # backup_file = f"/work3/s204163/wiki/graph_backup_{index//log_interval}{datetime.now()}.adjlist"
             # nx.write_adjlist(G.graph, backup_file)
