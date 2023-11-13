@@ -1,6 +1,7 @@
 # Default Imports
 from dataclasses import dataclass
 from tqdm import tqdm # Progress Bar
+import sys
 
 # Graph Imports
 import networkx as nx # Graph Structure
@@ -8,8 +9,6 @@ import netwulf as nw # Visualize Graph
 
 # Custom Imports
 from utils.read_data import read_revisions
-
-
 
 # Revision class, for sending information around as an object
 @dataclass
@@ -35,15 +34,18 @@ class Revision_User_Graph:
         self.graph = nx.Graph()
 
     # Adds a single node to the graph from user_id
-    def add_revision(self, revision: Revision):
+    def add_revision(self, revision: Revision = None, user_id: str = None):
         # If the user_id is already in the graph, it is not added.
-        self.graph.add_node(revision.user_id)
+        if user_id:
+            self.graph.add_node(user_id)
+        if revision:
+            self.graph.add_node(revision.user_id)
+        return None
         
     # Opens a local server for viewing the graph
     def visualize(self):
         nw.visualize(self.graph)
         
-    
     # Set weights between nodes
     # TODO - Given an integer, set the weights of the graph
     def add_edge(self, u, v, weight: int):
@@ -54,8 +56,6 @@ class Revision_User_Graph:
         else:
             self.graph.add_edge(u, v, weight=weight)
         
-        
-
     # TODO - Method for calculating weights between nodes
     def calculate_weights(self, articles: dict[str, Article]):
         for article in articles.values():
@@ -95,34 +95,45 @@ if __name__ == "__main__":
     articles = {}
     
     # For each revision add a node to the graph
-    for index, row in df_revisions.iterrows():
+    for index, row in tqdm(df_revisions.iterrows(), total=len(df_revisions)):
+        
+        if index % 10000 == 0:
+            print(G.graph.number_of_edges())
+            print(G.graph.number_of_nodes())
+            edge_mem = sum([sys.getsizeof(e) for e in G.edges])
+            node_mem = sum([sys.getsizeof(n) for n in G.nodes])
+            print("Edge memory:", edge_mem)
+            print("Node memory:", node_mem)
+            print("Total memory:", edge_mem + node_mem)
+            
+        
         # Create revision object
-        revision = Revision(row["article_id"], row["revision_id"], row["user_id"], row["category"])        
+        # revision = Revision(row["article_id"], row["revision_id"], row["user_id"], row["category"])        
         
         # Create user object
-        user = User(row["user_id"], {row["article_id"]})
+        # user = User(row["user_id"], {row["article_id"]})
         
         # Create article object
         article = Article(row["article_id"], {row["user_id"]})
 
-        #check if user is in users
-        if user.user_id in users:
-            # Add article_id to user
-            users[user.user_id].article_ids.add(article.article_id)
-        else:
-            # Add user to users        
-            users[user.user_id] = user
+        # #check if user is in users
+        # if user.user_id in users:
+        #     # Add article_id to user
+        #     users[user.user_id].article_ids.add(article.article_id)
+        # else:
+        #     # Add user to users        
+        #     users[user.user_id] = user
             
         #check if article is in articles
         if article.article_id in articles:
             # Add user_id to article
-            articles[article.article_id].user_ids.add(user.user_id)
+            articles[article.article_id].user_ids.add(row["user_id"])
         else:
             # Add article to articles        
             articles[article.article_id] = article
         
         # Add revision to graph
-        G.add_revision(revision)
+        G.add_revision(row["user_id"])
     
     G.calculate_weights(articles)
     
