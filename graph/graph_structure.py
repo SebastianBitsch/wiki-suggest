@@ -34,6 +34,24 @@ class User:
 class Revision_User_Graph:
     def __init__(self):
         self.graph = nx.Graph()
+        self.tqdm_disable = True
+        
+    def log_print(self):
+        print(f"Number of edges: {G.graph.number_of_edges()}")
+        print(f"Number of nodes: {G.graph.number_of_nodes()}")
+        
+        edge_mem = sum([sys.getsizeof(e) for e in G.graph.edges])
+        node_mem = sum([sys.getsizeof(n) for n in G.graph.nodes])
+        total_mem = edge_mem + node_mem
+        
+        # Edge, node and total memory
+        print(f"Edge memory:  {edge_mem:>12.0f} B, {edge_mem/1024:>9.0f} KB, {edge_mem/(1024**2):>10.1f} MB, {edge_mem/(1024**3):>5.2f} GB")
+        print(f"Node memory:  {node_mem:>12.0f} B, {node_mem/1024:>9.0f} KB, {node_mem/(1024**2):>10.1f} MB, {node_mem/(1024**3):>5.2f} GB")
+        print(f"Total memory: {total_mem:>12.0f} B, {total_mem/1024:>9.0f} KB, {total_mem/(1024**2):>10.1f} MB, {total_mem/(1024**3):>5.2f} GB")
+        
+    def load_graph(self, file_path: str):
+        with open(file_path, "rb") as file: 
+            self.graph = pickle.load(file)
 
     # Adds a single node to the graph from user_id
     def add_revision(self, revision: Revision = None, user_id: str = None):
@@ -60,9 +78,9 @@ class Revision_User_Graph:
         
     # TODO - Method for calculating weights between nodes
     def calculate_weights(self, articles: dict[str, Article]):
-        for article in articles.values():
+        for article in tqdm(articles.values(), disable = self.tqdm_disable):
             edges = set()
-            for user_id in tqdm(article.user_ids):
+            for user_id in article.user_ids:
                 for user_id2 in article.user_ids:
                     if user_id != user_id2:
                         if (user_id2, user_id) in edges:
@@ -73,8 +91,12 @@ class Revision_User_Graph:
                 user_id, user_id2 = edge
                 self.add_edge(user_id, user_id2, 1)
                 
-                
 
+
+
+
+    
+    
 if __name__ == "__main__":
     
     # PATH
@@ -82,6 +104,7 @@ if __name__ == "__main__":
     
     N = 100
     log_interval = 10
+    tqdm_disable = True
 
     # # Create a graph
     G = Revision_User_Graph()
@@ -98,7 +121,7 @@ if __name__ == "__main__":
     articles = {}
     
     # For each revision add a node to the graph
-    for index, row in tqdm(df_revisions.iterrows(), total=len(df_revisions)):
+    for index, row in tqdm(df_revisions.iterrows(), total=len(df_revisions), disable=tqdm_disable):
         if index % log_interval == 0:
             print(f"\nLog #{index//log_interval} for index {index} out of {len(df_revisions)}")
         
@@ -131,34 +154,41 @@ if __name__ == "__main__":
         G.add_revision(user_id = row["user_id"])
         
         if index % log_interval == 0:
-            print(f"Number of edges: {G.graph.number_of_edges()}")
-            print(f"Number of nodes: {G.graph.number_of_nodes()}")
-            
-            edge_mem = sum([sys.getsizeof(e) for e in G.graph.edges])
-            node_mem = sum([sys.getsizeof(n) for n in G.graph.nodes])
-            total_mem = edge_mem + node_mem
-            
-            # Edge, node and total memory
-            print(f"Edge memory:  {edge_mem:>12.0f} B, {edge_mem/1024:>9.0f} KB, {edge_mem/(1024**2):>10.1f} MB, {edge_mem/(1024**3):>5.2f} GB")
-            print(f"Node memory:  {node_mem:>12.0f} B, {node_mem/1024:>9.0f} KB, {node_mem/(1024**2):>10.1f} MB, {node_mem/(1024**3):>5.2f} GB")
-            print(f"Total memory: {total_mem:>12.0f} B, {total_mem/1024:>9.0f} KB, {total_mem/(1024**2):>10.1f} MB, {total_mem/(1024**3):>5.2f} GB")
-            
-            # backup_file = f"/work3/s204163/wiki/graph_backup_{index//log_interval}{datetime.now()}.adjlist"
-            # nx.write_adjlist(G.graph, backup_file)
+            G.log_print()    
+
     
     G.calculate_weights(articles)
     
+    print("Graph is complete")
+    G.log_print()
+    
     # loop over all edges in the graph G
-    for u, v, weight in tqdm(G.graph.edges.data('weight')):
+    print("Checking for valid weights")
+    n_valid_weights = 0
+    max_weight = 0
+    for u, v, weight in tqdm(G.graph.edges.data('weight'), total=G.graph.number_of_edges(), disable=tqdm_disable):
         if weight > 1:
-            print("Edge has weight > 1")            
-            print(f"(Edge between: ({u}, {v}) with weight: {weight})")
+            n_valid_weights += 1
+            
+            if weight > max_weight:
+                max_weight = weight
+    
+    print(f"Number of valid weights: {n_valid_weights}")
+    print(f"Max weight: {max_weight}")
+    
+    # Memory of articles
+    article_mem = sum([sys.getsizeof(a) for a in articles.values()])
+    df_mem = sys.getsizeof(df_revisions)
+    print(f"Article memory: {article_mem:>12.0f} B, {article_mem/1024:>9.0f} KB, {article_mem/(1024**2):>10.1f} MB, {article_mem/(1024**3):>5.2f} GB")
+    print(f"Dataframe memory: {df_mem:>12.0f} B, {df_mem/1024:>9.0f} KB, {df_mem/(1024**2):>10.1f} MB, {df_mem/(1024**3):>5.2f} GB")
     
     print("Number of edges in the graph: ", G.graph.number_of_edges())
     
-    output_file = "/work3/s204163/wiki/graph.adjlist"
-
-    nx.write_adjlist(G.graph, output_file)
+    # Format datetime to YEAR-MONTH-DAY-HOUR-MINUTE
+    format_date = datetime.now().strftime('%Y-%m-%d.%H:%M')
+    output_file = f"/work3/s204163/wiki/logs/graph-{format_date}.pickle"
+    with open(output_file, "wb") as file: 
+        pickle.dump(G.graph, file)
     
     
     
