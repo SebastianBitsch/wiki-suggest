@@ -1,6 +1,7 @@
 import json
 import zipfile
 import string
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 def extract_article_texts(zip_path:str) -> dict:
     """

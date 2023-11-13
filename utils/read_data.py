@@ -227,7 +227,7 @@ def read_articles_file(file_path: str, N: int = None) -> dict:
             # Check if we are only fetching a subset of the data
             if N and N <= i:
                 break
-            article_id, article_title, article_text = line.split('||||') # Using ||| because no way it is anywhere in the dataset - right?, update: there isnt
+            article_id, article_title, article_text = line.split('|å|ø|å|') # Using ||| because no way it is anywhere in the dataset - right?, update: there isnt
 
             # Write to dictionary
             articles[int(article_id)] = (article_title, article_text)
