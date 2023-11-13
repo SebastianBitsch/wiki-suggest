@@ -62,3 +62,4 @@ module load
 - Data is stored in /work3/s204163/wiki
 - For printing a couple of lines (for debugging etc.) use the command ```bzcat /work3/s204163/wiki/wiki-revisions-dataset.bz2 | head -n 4902767 | tail -n 4```. Prints line 4902767 - 4902771
 - Get the number of lines with ```bzcat /work3/s204163/wiki/wiki-revisions-dataset.bz2 | wc -l```. Took +4 hours, result: 1632271984 lines
+- See access right of ```ls -ld /work3/s204163```. Refer to [this table](https://askubuntu.com/a/409104) to see rights
