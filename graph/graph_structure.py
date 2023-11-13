@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from tqdm import tqdm # Progress Bar
 import sys
+import pickle
+from datetime import datetime
 
 # Graph Imports
 import networkx as nx # Graph Structure
@@ -78,7 +80,8 @@ if __name__ == "__main__":
     # PATH
     file_path = '/work3/s204163/wiki/wiki-revisions-filtered.bz2'
     
-    N = 100000
+    N = 100
+    log_interval = 10
 
     # # Create a graph
     G = Revision_User_Graph()
@@ -96,16 +99,8 @@ if __name__ == "__main__":
     
     # For each revision add a node to the graph
     for index, row in tqdm(df_revisions.iterrows(), total=len(df_revisions)):
-        
-        if index % 10000 == 0:
-            print(G.graph.number_of_edges())
-            print(G.graph.number_of_nodes())
-            edge_mem = sum([sys.getsizeof(e) for e in G.edges])
-            node_mem = sum([sys.getsizeof(n) for n in G.nodes])
-            print("Edge memory:", edge_mem)
-            print("Node memory:", node_mem)
-            print("Total memory:", edge_mem + node_mem)
-            
+        if index % log_interval == 0:
+            print(f"\nLog #{index//log_interval} for index {index} out of {len(df_revisions)}")
         
         # Create revision object
         # revision = Revision(row["article_id"], row["revision_id"], row["user_id"], row["category"])        
@@ -133,7 +128,23 @@ if __name__ == "__main__":
             articles[article.article_id] = article
         
         # Add revision to graph
-        G.add_revision(row["user_id"])
+        G.add_revision(user_id = row["user_id"])
+        
+        if index % log_interval == 0:
+            print(f"Number of edges: {G.graph.number_of_edges()}")
+            print(f"Number of nodes: {G.graph.number_of_nodes()}")
+            
+            edge_mem = sum([sys.getsizeof(e) for e in G.graph.edges])
+            node_mem = sum([sys.getsizeof(n) for n in G.graph.nodes])
+            total_mem = edge_mem + node_mem
+            
+            # Edge, node and total memory
+            print(f"Edge memory: {edge_mem} B, {edge_mem/1024:.2f} KB, {edge_mem/(1024**2):.2f} MB, {edge_mem/(1024**4):.2f} GB")
+            print(f"Node memory: {node_mem} B, {node_mem/1024:.2f} KB, {node_mem/(1024**2):.2f} MB, {node_mem/(1024**4):.2f} GB,")
+            print(f"Total memory: {total_mem} B, {total_mem/1024:.2f} KB , {total_mem/(1024**2):.2f} MB , {total_mem/(1024**4):.2f} GB")
+            
+            # backup_file = f"/work3/s204163/wiki/graph_backup_{index//log_interval}{datetime.now()}.adjlist"
+            # nx.write_adjlist(G.graph, backup_file)
     
     G.calculate_weights(articles)
     
@@ -144,7 +155,10 @@ if __name__ == "__main__":
             print(f"(Edge between: ({u}, {v}) with weight: {weight})")
     
     print("Number of edges in the graph: ", G.graph.number_of_edges())
+    
+    output_file = "/work3/s204163/wiki/graph.adjlist"
 
+    nx.write_adjlist(G.graph, output_file)
     
     
     
