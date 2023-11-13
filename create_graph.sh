@@ -1,13 +1,13 @@
 #!/bin/bash
 
 ### -- set the job Name -- 
-#BSUB -J CREATE_INDEX
+#BSUB -J CREATE_GRAPH
 
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
 
-#BSUB -o logs/read_lines_%J.out
-#BSUB -e logs/read_lines_%J.err
+#BSUB -o logs/create_graph_%J.out
+#BSUB -e logs/create_graph_%J.err
 # -- end of LSF options --
 
 ### -- specify queue -- 
@@ -20,7 +20,7 @@
 #BSUB -R "span[hosts=1]"
 
 ### -- specify that we need X GB of memory per core/slot -- 
-#BSUB -R "rusage[mem=5GB]"
+#BSUB -R "rusage[mem=64GB]"
 
 ### -- set walltime limit: hh:mm --
 #BSUB -W 24:00
@@ -33,4 +33,4 @@
 ##BSUB -N
 
 source .env/bin/activate
-bzcat /work3/s204163/wiki/wiki-revisions-filtered.bz2 | wc -l
+python3 graph/graph_structure.py
