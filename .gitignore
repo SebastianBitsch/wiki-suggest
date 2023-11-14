@@ -7,3 +7,5 @@ wiki_suggests.egg-info
 data
 private
 .vscode
+
+*.sh
