@@ -1,9 +1,16 @@
 import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
+import pickle
 
 # Load karate graph and find communities using Girvan-Newman
-G = nx.karate_club_graph()
+#G = nx.karate_club_graph()
+
+path = "/work3/s204163/wiki/logs/graph.adjlist-2023-11-13 11:01:27.497461"
+
+with open(path, "rb") as f:
+    G = pickle.load(f)
+
 communities = list(nx.community.girvan_newman(G))
 
 # Modularity -> measures the strength of division of a network into modules
@@ -15,6 +22,7 @@ modularity_df = pd.DataFrame(
     columns=["k", "modularity"],
 )
 
+print(modularity_df)
 
 # function to create node colour list
 def create_community_node_colors(graph, communities):
@@ -106,4 +114,3 @@ def betweenness_centrality(G : nx.Graph) -> dict:
 #
 #    return Q
 #    '''
-
