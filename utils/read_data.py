@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 # Prefixes of the properties, see: https://snap.stanford.edu/data/wiki-meta.html
 PREFIXES = ["CATEGORY", "IMAGE ", "MAIN", "TALK", "USER ", "USER_TALK", "OTHER", "EXTERNAL", "TEMPLATE", "COMMENT", "MINOR", "TEXTDATA"]
-DELIMITER = '||||' # Using ||| because no way it is anywhere in the dataset - right?, update: there isnt
+DELIMITER = "|å|ø|å|" # Using |å|ø|å| because no way it is anywhere in the dataset - right?, update: there isnt
 
 ROWS_PER_REVISION = 14                      # The number of rows in a single revision object, should never change
 REVISIONS_PER_INDEX = 50                    # How many revisions should there be between indexing
@@ -216,7 +216,7 @@ def read_index_file(file_path: str) -> dict:
     return index
 
 
-def read_articles_file(file_path: str, N: int = None) -> dict:
+def read_articles_file(file_path: str, N: int = None, return_titles: bool = False) -> dict:
     """
     Create a dictionary of article-id : (title, text) pairs of every article in the good texts dataset.
     Option to only read N articles
@@ -232,6 +232,7 @@ def read_articles_file(file_path: str, N: int = None) -> dict:
             article_id, article_title, article_text = line.split(DELIMITER)
 
             # Write to dictionary
-            articles[int(article_id)] = (article_title, article_text)
+            text = (article_title, article_text) if return_titles else article_text
+            articles[int(article_id)] = text
 
     return articles

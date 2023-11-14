@@ -6,8 +6,8 @@
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
 
-#BSUB -o logs/filter_revisions_%J.out
-#BSUB -e logs/filter_revisions_%J.err
+#BSUB -o logs/read_lines_%J.out
+#BSUB -e logs/read_lines_%J.err
 # -- end of LSF options --
 
 ### -- specify queue -- 
@@ -33,5 +33,4 @@
 ##BSUB -N
 
 source .env/bin/activate
-cd utils
-python3 filter_revisions.py
+bzcat /work3/s204163/wiki/wiki-revisions-filtered.bz2 | wc -l

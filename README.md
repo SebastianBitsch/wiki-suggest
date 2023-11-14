@@ -7,6 +7,7 @@
 1. Load python3.10 from HPC [list of modules](https://www.hpc.dtu.dk/?page_id=282)
 ```bash
 module load python3/3.10.7
+module load matplotlib/3.6.0-numpy-1.23.3-python-3.10.7
 ```
 2. Create virtual enviornment
 ```bash
@@ -24,6 +25,11 @@ python -m pip  install -r requirements.txt
 module load python3/3.10.7
 module load pandas/1.4.4-python-3.10.7
 ...
+```
+
+4. To make imports across folders possible we are using a `setup.py` and `__init__.py` files. Install using:
+```bash
+pip install -e .
 ```
 
 ### Data on scratch
@@ -56,3 +62,4 @@ module load
 - Data is stored in /work3/s204163/wiki
 - For printing a couple of lines (for debugging etc.) use the command ```bzcat /work3/s204163/wiki/wiki-revisions-dataset.bz2 | head -n 4902767 | tail -n 4```. Prints line 4902767 - 4902771
 - Get the number of lines with ```bzcat /work3/s204163/wiki/wiki-revisions-dataset.bz2 | wc -l```. Took +4 hours, result: 1632271984 lines
+- See access right of ```ls -ld /work3/s204163```. Refer to [this table](https://askubuntu.com/a/409104) to see rights

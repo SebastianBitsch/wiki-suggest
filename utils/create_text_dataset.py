@@ -1,7 +1,7 @@
 import json
 import zipfile
 
-DELIMITER = '||||'  # Using ||||, because no way it is written anywhere on wiki - hopefully
+DELIMITER = "|å|ø|å|"  # Using |å|ø|å|, because no way it is written anywhere on wiki - hopefully
 
 def extract_article_texts(zip_path:str) -> dict:
     """
@@ -30,10 +30,11 @@ def extract_article_texts(zip_path:str) -> dict:
 
 
 def clean(text: str) -> str:
-    """ Function to clean a text corpus that could contain anything"""
-    # TODO: Actual text cleaning / processing - these two steps are just to make the text loading work
-    text = text.replace("\n", " ")
-    return text
+    """
+    Function to clean a string of newline characters, 
+    which interfere with saving and loading the data consistently
+    """
+    return text.replace("\n", " ")
 
 
 if __name__ == "__main__":

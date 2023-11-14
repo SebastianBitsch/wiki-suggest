@@ -1,11 +1,10 @@
 import bz2
 
-# https://stackoverflow.com/a/28712742
-import sys
-sys.path.insert(0, '..')
-from utils.read_data import groups, parse_line
+from read_data import groups, parse_line
 
 # TODO: Could be parallel, would be a nice to have feature for report
+
+NUM_REVISIONS = float(1632271984 // 14)
 
 def delete_revisions(input_file_path: str, output_file_path: str, article_ids_file_path: str) -> None:
 
@@ -15,11 +14,11 @@ def delete_revisions(input_file_path: str, output_file_path: str, article_ids_fi
     with bz2.open(input_file_path, 'rt') as input_file, bz2.open(output_file_path, 'wt') as output_file:
         
         for i, line in enumerate(groups(input_file, 14)):
+            if i % 100000 == 0:
+                print(f"Read {i}/1632271984 ~= {i / NUM_REVISIONS * 100.0:.2f}% lines")
+
             if keep_revision(ids_of_text_articles, parse_line(line)):
                 output_file.write("".join(line))
-
-            if i % 100000 == 0:
-                print(f"Read {i}/1632271984 ~= {i / 1632271984.0 * 100:.2f}% lines")
 
             # TODO: temporary as to not run on entire dataset
             # if 100000 < i:
