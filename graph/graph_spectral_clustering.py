@@ -3,9 +3,9 @@ import networkx as nx
 from sklearn.cluster import SpectralClustering
 from sklearn import metrics
 import pickle
-np.random.seed(1)
 
 # Get your mentioned graph
+# np.random.seed(1)
 # G = nx.karate_club_graph()
 
 path = "/work3/s204163/wiki/logs/graph.adjlist-2023-11-13 11:01:27.497461"

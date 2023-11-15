@@ -2,16 +2,23 @@ import networkx as nx
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
+import glob
 
+output_path = "/work3/s204163/wiki/test/"
 # Load karate graph and find communities using Girvan-Newman
-#G = nx.karate_club_graph()
+# G = nx.karate_club_graph()
 
 path = "/work3/s204163/wiki/logs/graph.adjlist-2023-11-13 11:01:27.497461"
-
 with open(path, "rb") as f:
-    G = pickle.load(f)
+    G : nx.Graph = pickle.load(f)
+
+# print(G.number_of_edges(), G.number_of_nodes())
+# raise Exception() 
 
 communities = list(nx.community.girvan_newman(G))
+output_increment = len(glob.glob(output_path + "communities_*.pkl"))
+with open(f"{output_path}communities_{output_increment}.pkl", "bx") as f:
+    pickle.dump(communities, f)
 
 # Modularity -> measures the strength of division of a network into modules
 modularity_df = pd.DataFrame(
@@ -19,7 +26,7 @@ modularity_df = pd.DataFrame(
         [k + 1, nx.community.modularity(G, communities[k])]
         for k in range(len(communities))
     ],
-    columns=["k", "modularity"],
+    columns=["k", "modularity"],    
 )
 
 print(modularity_df)
@@ -43,7 +50,7 @@ def create_community_node_colors(graph, communities):
 def visualize_communities(graph, communities, i):
     node_colors = create_community_node_colors(graph, communities)
     modularity = round(nx.community.modularity(graph, communities), 6)
-    title = f"Community Visualization of {len(communities)} communities with modularity of {modularity}"
+    title = f"Community Visualization of {len(communities)} Communities with modularity of {modularity}"
     pos = nx.spring_layout(graph, k=0.3, iterations=50, seed=2)
     plt.subplot(3, 1, i)
     plt.title(title)
@@ -71,7 +78,9 @@ modularity_df.plot.bar(
     color="#F2D140",
     title="Modularity Trend for Girvan-Newman Community Detection",
 )
-plt.show()
+# plt.show()
+plt.savefig(output_path+"modularity_df.png")
+
 
 # Betweenness centrality
 def betweenness_centrality(G : nx.Graph) -> dict:
