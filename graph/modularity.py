@@ -40,6 +40,7 @@ def compute_modularity(K, partition):
 
 # Define the partition based on the "club" attribute
 partition = {node: K.nodes[node]["club"] for node in K.nodes}
+#print(partition)
 
 # Compute the modularity of the Karate club split partitioning
 Q = compute_modularity(K, partition)
@@ -48,11 +49,11 @@ mr_hi_nodes = [k for k, v in partition.items() if v == 'Mr. Hi']
 officer_nodes = [k for k, v in partition.items() if v == 'Officer']
 
 partition_lib = [set(mr_hi_nodes), set(officer_nodes)]
+Q4 = nx.community.modularity(K, partition_lib)
+print(f'The difference is {Q-Q4}')
 
-Q1 = nx.community.modularity(K, partition_lib)
 
-print(Q)
-print(Q1)
 
-print(Q1-Q)
+
+
 
