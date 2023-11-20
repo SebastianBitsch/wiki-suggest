@@ -215,6 +215,19 @@ def read_index_file(file_path: str) -> dict:
     return index
 
 
+def read_article_ids_file(file_path: str, N: int = None) -> dict:
+    """ Read N article ids a list"""
+    article_ids = []
+    with open(file_path, 'r') as file:
+        for i, line in enumerate(file):
+            if N and N <= i:
+                break
+            else:
+                article_ids.append(int(line.strip()))
+
+    return article_ids
+
+
 def read_articles_file(file_path: str, N: int = None, return_titles: bool = False) -> dict:
     """
     Create a dictionary of article-id : (title, text) pairs of every article in the good texts dataset.
