@@ -1,6 +1,7 @@
 import numpy as np
 import networkx as nx
 from sklearn.cluster import SpectralClustering
+import pickle
 
 def edge_list(G):
 
@@ -35,6 +36,7 @@ def adjacency_matrix(edge_list):
 
 # spectral clustering with the given epsilon, the distance critera for two pooints to be considered in the same cluster
 def spectral_clustering(G):
+    output_path = "/work3/s204163/wiki/test/"
     
     edge_list_G = edge_list(G)
     # print(edge_list(G))
@@ -42,6 +44,7 @@ def spectral_clustering(G):
     
      # create the similarity matrix
     A = adjacency_matrix(edge_list_G)
+    pickle.dump(A, output_path+"A.pkl")
     
     # Compute the sum of weights for each node
     degree_sums = np.sum(A, axis=1)
@@ -53,6 +56,8 @@ def spectral_clustering(G):
     
     # create the normalized Laplacian matrix
     L = np.identity(A.shape[0]) - D @ A @ D
+    pickle.dump(L, output_path+"L.pkl")
+    
     # print(L)
     # print(nx.linalg.normalized_laplacian_matrix(G)) # Ens
     
@@ -68,22 +73,23 @@ def spectral_clustering(G):
 
 
 
-# Create an undirected graph
-Gx = nx.Graph()
-
-# Add nodes, you can add as many as you need
-Gx.add_nodes_from([1, 2, 3, 4, 5])
-
-# Add edges with weights
-# The tuple is (node1, node2, weight)
-Gx.add_weighted_edges_from([(1, 2, 1), (1, 3, 1), 
-                           (2, 4, 1), (3, 4, 1), 
-                           (4, 5, 1), (1, 5, 1), (2,3,1), (1,7,1), (4,9,1),(9,7,1)])
-                           
+# # Create an undirected graph
+# Gx = nx.Graph()
+# # Add nodes, you can add as many as you need
+# Gx.add_nodes_from([1, 2, 3, 4, 5])
+# # Add edges with weights
+# # The tuple is (node1, node2, weight)
+# Gx.add_weighted_edges_from([(1, 2, 1), (1, 3, 1), 
+#                            (2, 4, 1), (3, 4, 1), 
+#                            (4, 5, 1), (1, 5, 1), (2,3,1), (1,7,1), (4,9,1),(9,7,1)])
+                   
+path = "/work3/s204163/wiki/logs/graph.adjlist-2023-11-13 11:01:27.497461"
+with open(path, "rb") as f:
+    Gx: nx.Graph = pickle.load(f)        
 
 
 print("Spectral-customs:",spectral_clustering(Gx))
 
-clustering = SpectralClustering(n_clusters=2, assign_labels='kmeans', random_state=0, affinity="precomputed")
-clustering.fit(adjacency_matrix(edge_list(Gx)))
-print("Spectral-sklearn:",clustering.labels_)
+# clustering = SpectralClustering(n_clusters=2, assign_labels='kmeans', random_state=0, affinity="precomputed")
+# clustering.fit(adjacency_matrix(edge_list(Gx)))
+# print("Spectral-sklearn:",clustering.labels_)
