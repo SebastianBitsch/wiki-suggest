@@ -44,7 +44,8 @@ def spectral_clustering(G):
     
      # create the similarity matrix
     A = adjacency_matrix(edge_list_G)
-    pickle.dump(A, output_path+"A.pkl")
+    with open(output_path+"A.pkl", 'wb') as handle:
+        pickle.dump(A, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     # Compute the sum of weights for each node
     degree_sums = np.sum(A, axis=1)
@@ -56,7 +57,8 @@ def spectral_clustering(G):
     
     # create the normalized Laplacian matrix
     L = np.identity(A.shape[0]) - D @ A @ D
-    pickle.dump(L, output_path+"L.pkl")
+    with open(output_path+"L.pkl") as handle:
+        pickle.dump(L, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     # print(L)
     # print(nx.linalg.normalized_laplacian_matrix(G)) # Ens
