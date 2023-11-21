@@ -15,7 +15,7 @@ from utils.read_data import read_articles_file, read_article_ids_file
 # TF-IDF parameters
 N_TFIDF_FEATURES = 200
 N_GRAM_ANALYZER = 'word' # ‘word’, ‘char’, ‘char_wb’
-N_MAX_CHARS = 10_000
+N_MAX_CHARS = 1500
 
 # Translator for removing punctuation, including non unicode U+2013 character "–", very common
 punctuation_translator = str.maketrans(string.punctuation + '\u2013', " " * (len(string.punctuation) + 1))
@@ -76,13 +76,16 @@ def random_articles(articles: set, N : int, seed: int = 0) -> set:
 
 
 if __name__ == "__main__":
+    print("Starting job... ")
+
     N = None # Read all the data
 
     article_texts_path = "/work3/s204163/wiki/article_texts"
     article_ids_path = "/work3/s204163/wiki/article_ids"
-    clean_texts_path = "/work3/s204163/wiki/cleaned_texts"
+    clean_texts_path = "/work3/s204163/wiki/cleaned_texts1500"
+    tfidf_features_path = "/work3/s204163/wiki/tfidffeatures1500.csv"
 
-    all_articles = read_articles_file(article_texts_path, N = N, return_titles = False)
+    all_articles = read_articles_file(article_texts_path, N = N, read_titles = True)
     article_ids = read_article_ids_file(article_ids_path, N = N)
 
     print(f"Read {len(all_articles)} articles")
