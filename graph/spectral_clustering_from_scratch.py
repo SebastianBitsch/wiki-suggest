@@ -83,9 +83,9 @@ def spectral_clustering(G):
 #                            (2, 4, 1), (3, 4, 1), 
 #                            (4, 5, 1), (1, 5, 1), (2,3,1), (1,7,1), (4,9,1),(9,7,1)])
                    
-path = "/work3/s204163/wiki/logs/graph.adjlist-2023-11-13 11:01:27.497461"
+path = "/work3/s204163/wiki/graph_logs/graphs/graph-100000-2023-11-14.22:49.pickle"
 with open(path, "rb") as f:
-    Gx: nx.Graph = pickle.load(f)        
+    Gx: nx.Graph = pickle.load(f)
 
 
 print("Spectral-customs:",spectral_clustering(Gx))
