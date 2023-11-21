@@ -1,5 +1,6 @@
 import numpy as np
 import networkx as nx
+from sklearn.cluster import SpectralClustering
 
 def edge_list(G):
 
@@ -16,14 +17,18 @@ def adjacency_matrix(edge_list):
     #A = pairwise_distances(X, metric='euclidean')
 
     # Number of nodes (assuming nodes are labeled from 0 to n-1)
-    n_nodes = len(edge_list)
-
+    # n_nodes = len(edge_list)
+    set_nodes = set()
+    [(set_nodes.add(x),set_nodes.add(y)) for x,y,_ in edge_list] # add nodes to set_nodes
+    n_nodes = len(set_nodes)
+    
     # Constructing the similarity matrix 
     A = np.zeros((n_nodes, n_nodes))
-
+    pos = {n:i for i,n in enumerate(set_nodes)} # fix if node is string/doesn't start at 0
+    
     for node1, node2, weight in edge_list:
-        A[node1, node2] = weight
-        A[node2, node1] = weight  
+        A[pos[node1], pos[node2]] = weight
+        A[pos[node2], pos[node1]] = weight  
     
     return A
 
@@ -32,7 +37,7 @@ def adjacency_matrix(edge_list):
 def spectral_clustering(G):
     
     edge_list_G = edge_list(G)
-    
+    # print(edge_list(G))
     n = len(edge_list_G)
     
      # create the similarity matrix
@@ -40,12 +45,16 @@ def spectral_clustering(G):
     
     # Compute the sum of weights for each node
     degree_sums = np.sum(A, axis=1)
+    # raise Exception(degree_sums)
 
     # Create the degree matrix as a diagonal matrix
     D = np.diag(degree_sums)
+    D = np.linalg.pinv(D)**(1/2)
     
     # create the normalized Laplacian matrix
-    L = np.linalg.pinv(D) @ (D -  A)
+    L = np.identity(A.shape[0]) - D @ A @ D
+    # print(L)
+    # print(nx.linalg.normalized_laplacian_matrix(G)) # Ens
     
     # computing the eigenvector for the second-smallest eigenvalue
     eigval_sorted = np.linalg.eig(L)[0].argsort() # indices of sorted eigenvalues
@@ -60,16 +69,18 @@ def spectral_clustering(G):
 
 
 # Create an undirected graph
-G = nx.Graph()
+Gx = nx.Graph()
 
 # Add nodes, you can add as many as you need
-G.add_nodes_from([1, 2, 3, 4, 5])
+Gx.add_nodes_from([1, 2, 3, 4, 5])
 
 # Add edges with weights
 # The tuple is (node1, node2, weight)
-G.add_weighted_edges_from([(1, 2, 1.5), (1, 3, 2.0), 
+Gx.add_weighted_edges_from([(1, 2, 1.5), (1, 3, 2.0), 
                            (2, 4, 2.5), (3, 4, 1.0), 
                            (4, 5, 3.0), (1, 5, 2.5)])
 
 
-print(spectral_clustering(G))
+print(spectral_clustering(Gx))
+# clustering = SpectralClustering(n_clusters=2, assign_labels='discretize', random_state=0).fit(list(Gx.edges))
+# print(clustering.labels_)
