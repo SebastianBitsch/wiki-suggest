@@ -76,11 +76,14 @@ Gx.add_nodes_from([1, 2, 3, 4, 5])
 
 # Add edges with weights
 # The tuple is (node1, node2, weight)
-Gx.add_weighted_edges_from([(1, 2, 1.5), (1, 3, 2.0), 
-                           (2, 4, 2.5), (3, 4, 1.0), 
-                           (4, 5, 3.0), (1, 5, 2.5)])
+Gx.add_weighted_edges_from([(1, 2, 1), (1, 3, 1), 
+                           (2, 4, 1), (3, 4, 1), 
+                           (4, 5, 1), (1, 5, 1), (2,3,1), (1,7,1), (4,9,1),(9,7,1)])
+                           
 
 
-print(spectral_clustering(Gx))
-# clustering = SpectralClustering(n_clusters=2, assign_labels='discretize', random_state=0).fit(list(Gx.edges))
-# print(clustering.labels_)
+print("Spectral-customs:",spectral_clustering(Gx))
+
+clustering = SpectralClustering(n_clusters=2, assign_labels='kmeans', random_state=0, affinity="precomputed")
+clustering.fit(adjacency_matrix(edge_list(Gx)))
+print("Spectral-sklearn:",clustering.labels_)
