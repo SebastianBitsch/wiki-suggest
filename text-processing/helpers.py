@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from sklearn.decomposition import PCA
+
 
 def calculate_average_radius(points, labels, centroids):
     """
@@ -54,5 +56,20 @@ def scatter(points, centroids = None, colors = "red", title = "", figsize = (5,5
     if not centroids is None:
         plt.scatter(centroids[:,0], centroids[:,1], c='black', marker='x')
     
+    plt.title(title)
+    plt.show()
+
+
+def pca(X, labels, title = "", n_components = 2, figsize = (5,5)):
+    """ Function for using the sklearn pca function for visualizing our clusteirng in 2D """
+    plt.figure(figsize = figsize)
+    pca = PCA(n_components = n_components)
+    X_pca = pca.fit(X).transform(X) if type(X) == np.ndarray else pca.fit(X.toarray()).transform(X.toarray())
+
+    x, y = X_pca.T
+    labels = labels if type(labels) == list else labels.tolist()
+    scatter = plt.scatter(x, y, c = labels, cmap="Set1", label = labels)
+    plt.legend(*scatter.legend_elements())
+
     plt.title(title)
     plt.show()
