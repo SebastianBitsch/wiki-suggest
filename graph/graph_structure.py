@@ -1,9 +1,10 @@
 # Default Imports
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from tqdm import tqdm # Progress Bar
 import sys
 import pickle
 from datetime import datetime
+import os
 
 # Graph Imports
 import networkx as nx # Graph Structure
@@ -11,6 +12,7 @@ import netwulf as nw # Visualize Graph
 
 # Custom Imports
 from utils.read_data import read_revisions
+from batchjob_utils import log_message, memory_usage_of
 
 # Revision class, for sending information around as an object
 @dataclass
@@ -22,32 +24,49 @@ class Revision:
 
 @dataclass
 class Article:
-    article_id : set[str]
-    user_ids : set[str]
+    article_id : str
+    user_ids : set[str] = field(default_factory=set)
     
 @dataclass
 class User:
     user_id : str
-    article_ids : set[str]
+    article_ids : set[str] = field(default_factory=set)
 
 
 class Revision_User_Graph:
     def __init__(self):
         self.graph = nx.Graph()
         self.tqdm_disable = True
+    
+    def __repr__(self):
+        return f"Revision_User_Graph(graph={self.graph})"
+    
+    def stats(self, memory_usage : bool = False):
+        stats = [
+            f"Graph stats:",
+            f"Number of nodes: {self.graph.number_of_nodes()}",
+            f"Number of edges: {self.graph.number_of_edges()}",
+            f"max degree: {max(dict(self.graph.degree()).values())}",
+            f"valid weights: {sum([1 for u, v, weight in self.graph.edges.data('weight') if weight > 1])}",
+            ]
         
-    def log_print(self):
-        print(f"Number of edges: {G.graph.number_of_edges()}")
-        print(f"Number of nodes: {G.graph.number_of_nodes()}")
+        if memory_usage:
+            mem_nodes, mem_nodes_message = memory_usage_of(list(self.graph.nodes()), "Graph nodes")
+            mem_edges, mem_edges_message = memory_usage_of(list(self.graph.edges()), "Graph edges")
+            _, total_mem_message = memory_usage_of(mem_nodes + mem_edges, "Graph nodes and edges")
+            
+            stats.extend([
+                f'\nMemory usage:',
+                mem_nodes_message,
+                mem_edges_message,
+                total_mem_message,
+                ])
         
-        edge_mem = sum([sys.getsizeof(e) for e in G.graph.edges])
-        node_mem = sum([sys.getsizeof(n) for n in G.graph.nodes])
-        total_mem = edge_mem + node_mem
-        
-        # Edge, node and total memory
-        print(f"Edge memory:  {edge_mem:>12.0f} B, {edge_mem/1024:>9.0f} KB, {edge_mem/(1024**2):>10.1f} MB, {edge_mem/(1024**3):>5.2f} GB")
-        print(f"Node memory:  {node_mem:>12.0f} B, {node_mem/1024:>9.0f} KB, {node_mem/(1024**2):>10.1f} MB, {node_mem/(1024**3):>5.2f} GB")
-        print(f"Total memory: {total_mem:>12.0f} B, {total_mem/1024:>9.0f} KB, {total_mem/(1024**2):>10.1f} MB, {total_mem/(1024**3):>5.2f} GB")
+        return "\n".join(stats)
+    
+    def save_graph(self, file_path: str):
+        with open(file_path, "wb") as file: 
+            pickle.dump(self.graph, file)
         
     def load_graph(self, file_path: str):
         with open(file_path, "rb") as file: 
@@ -77,8 +96,10 @@ class Revision_User_Graph:
             self.graph.add_edge(u, v, weight=weight)
         
     # TODO - Method for calculating weights between nodes
-    def calculate_weights(self, articles: dict[str, Article]):
-        for article in tqdm(articles.values(), disable = self.tqdm_disable):
+    def calculate_weights(self, articles: list[Article] | dict[str, Article]):
+        if isinstance(articles, dict):
+            articles = list(articles.values())
+        for article in tqdm(articles, disable = self.tqdm_disable):
             edges = set()
             for user_id in article.user_ids:
                 for user_id2 in article.user_ids:
@@ -90,111 +111,77 @@ class Revision_User_Graph:
             for edge in edges:
                 user_id, user_id2 = edge
                 self.add_edge(user_id, user_id2, 1)
-                
+
+    def add_article(self, article: Article):
+        for user_id in article.user_ids:
+            self.graph.add_edge(user_id, article.article_id, weight=1)
+        
+    def create_graph_from_articles(self, articles: list[Article]):
+        for article in tqdm(articles, disable = self.tqdm_disable):
+            self.add_article(article)
+    
 
 
-
-
+def create_graph(file_path, output_file, N, **kwargs) -> nx.Graph:
+    # kwargs
+    # log_file : str = None, 
+    # log_interval : int = None, 
+    # tqdm_disable : bool = True
+    log_interval = kwargs.get("log_interval", None)
+    tqdm_disable = kwargs.get("tqdm_disable", True)
+    log_file = kwargs.get("log_file", None)
+    console_log = kwargs.get("console_log", False)
     
     
-if __name__ == "__main__":
+    def log_interval_logic(index):
+        if not log_interval:
+            return False
+        if index % log_interval == 0:
+            return True
     
-    # PATH
-    file_path = '/work3/s204163/wiki/wiki-revisions-filtered.bz2'
     
-    N = 100
-    log_interval = 10
-    tqdm_disable = True
-
-    # # Create a graph
+    
+    # Init Graph and article infrastructure
     G = Revision_User_Graph()
+    articles = {}
     
     # Get dataframe of revisions
     df_revisions = read_revisions(file_path, N=N)
-    df_revisions = df_revisions[['article_id', 'revision_id', 'user_id', 'category']]
     
-    # Count the number of unique user_id in df_revisions
-    print(len(df_revisions['user_id'].unique()))
-    
-    
-    users = {}
-    articles = {}
+    # Get only relevant columns
+    df_revisions = df_revisions[['article_id', 'user_id']]
     
     # For each revision add a node to the graph
-    for index, row in tqdm(df_revisions.iterrows(), total=len(df_revisions), disable=tqdm_disable):
-        if index % log_interval == 0:
-            print(f"\nLog #{index//log_interval} for index {index} out of {len(df_revisions)}")
+    for index, revision in tqdm(df_revisions.iterrows(), total=len(df_revisions), disable=tqdm_disable):
+        if log_interval_logic(index):
+            message = f"\nLog #{index//log_interval} for index {index} out of {len(df_revisions)}"
+            log_message(message, log_file, console_log=console_log)
+                
+        # Get data from row
+        user_id = revision["user_id"]
+        article_id = revision["article_id"]
         
-        # Create revision object
-        # revision = Revision(row["article_id"], row["revision_id"], row["user_id"], row["category"])        
-        
-        # Create user object
-        # user = User(row["user_id"], {row["article_id"]})
-        
-        # Create article object
-        article = Article(row["article_id"], {row["user_id"]})
+        #Add user_id to article
+        article = articles[article_id] = articles.get(article_id, Article(article_id))
+        article.user_ids.add(user_id)
 
-        # #check if user is in users
-        # if user.user_id in users:
-        #     # Add article_id to user
-        #     users[user.user_id].article_ids.add(article.article_id)
-        # else:
-        #     # Add user to users        
-        #     users[user.user_id] = user
-            
-        #check if article is in articles
-        if article.article_id in articles:
-            # Add user_id to article
-            articles[article.article_id].user_ids.add(row["user_id"])
-        else:
-            # Add article to articles        
-            articles[article.article_id] = article
-        
         # Add revision to graph
-        G.add_revision(user_id = row["user_id"])
+        G.add_revision(user_id = user_id)
         
-        if index % log_interval == 0:
-            G.log_print()    
+        if log_interval_logic(index):
+            log_message(G.stats(), log_file, console_log=console_log)
 
-    
+    # Create edges between nodes
     G.calculate_weights(articles)
     
-    print("Graph is complete")
-    G.log_print()
+    # Print stats
+    log_message(G.stats(memory_usage=True), log_file, console_log=console_log)
+    log_message(memory_usage_of(articles, "Articles"), log_file, console_log=console_log)
     
-    # loop over all edges in the graph G
-    print("Checking for valid weights")
-    n_valid_weights = 0
-    max_weight = 0
-    for u, v, weight in tqdm(G.graph.edges.data('weight'), total=G.graph.number_of_edges(), disable=tqdm_disable):
-        if weight > 1:
-            n_valid_weights += 1
-            
-            if weight > max_weight:
-                max_weight = weight
-    
-    print(f"Number of valid weights: {n_valid_weights}")
-    print(f"Max weight: {max_weight}")
-    
-    # Memory of articles
-    article_mem = sum([sys.getsizeof(a) for a in articles.values()])
-    df_mem = sys.getsizeof(df_revisions)
-    print(f"Article memory: {article_mem:>12.0f} B, {article_mem/1024:>9.0f} KB, {article_mem/(1024**2):>10.1f} MB, {article_mem/(1024**3):>5.2f} GB")
-    print(f"Dataframe memory: {df_mem:>12.0f} B, {df_mem/1024:>9.0f} KB, {df_mem/(1024**2):>10.1f} MB, {df_mem/(1024**3):>5.2f} GB")
-    
-    print("Number of edges in the graph: ", G.graph.number_of_edges())
-    
-    # Format datetime to YEAR-MONTH-DAY-HOUR-MINUTE
-    format_date = datetime.now().strftime('%Y-%m-%d.%H:%M')
-    output_file = f"/work3/s204163/wiki/logs/graph-{format_date}.pickle"
+    # Save graph
     with open(output_file, "wb") as file: 
         pickle.dump(G.graph, file)
     
-    
-    
-        
 
-        
-        
     
     # G.visualize()
