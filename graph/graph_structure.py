@@ -112,8 +112,16 @@ class Revision_User_Graph:
                 user_id, user_id2 = edge
                 self.add_edge(user_id, user_id2, 1)
 
+    def add_node(self, node:str, article:bool):
+        self.graph.add_node(node, article=article)
+        
     def add_article(self, article: Article):
+        
+        self.add_node(article.article_id, article=True)
+        
         for user_id in article.user_ids:
+            user_id = user_id.strip()
+            self.add_node(user_id, article=False)
             self.graph.add_edge(user_id, article.article_id, weight=1)
         
     def create_graph_from_articles(self, articles: list[Article]):
