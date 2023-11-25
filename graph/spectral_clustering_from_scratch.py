@@ -2,6 +2,10 @@ import numpy as np
 import networkx as nx
 from sklearn.cluster import SpectralClustering
 import pickle
+import glob
+# from utils.pickle_dump import pickle_dump
+filepath:str = "/work3/s204163/wiki/"
+extension:str = "pkl"
 
 def edge_list(G):
 
@@ -44,8 +48,11 @@ def spectral_clustering(G):
     
      # create the similarity matrix
     A = adjacency_matrix(edge_list_G)
-    with open(output_path+"A.pkl", 'wb') as handle:
-        pickle.dump(A, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # pickle_dump(A,"test/A")
+    # full_path = filepath + "test/A"
+    # n_exist = len(glob.glob(full_path+"*"))
+    # with open(f"{full_path}_{n_exist}.{extension}") as handle:
+        # pickle.dump(A, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     # Compute the sum of weights for each node
     degree_sums = np.sum(A, axis=1)
@@ -57,8 +64,11 @@ def spectral_clustering(G):
     
     # create the normalized Laplacian matrix
     L = np.identity(A.shape[0]) - D @ A @ D
-    with open(output_path+"L.pkl") as handle:
-        pickle.dump(L, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # pickle_dump(L,"test/L")
+    # full_path = filepath + "test/L"
+    # n_exist = len(glob.glob(full_path+"*"))
+    # with open(f"{full_path}_{n_exist}.{extension}") as handle:
+        # pickle.dump(L, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     # print(L)
     # print(nx.linalg.normalized_laplacian_matrix(G)) # Ens
@@ -84,14 +94,21 @@ def spectral_clustering(G):
 # Gx.add_weighted_edges_from([(1, 2, 1), (1, 3, 1), 
 #                            (2, 4, 1), (3, 4, 1), 
 #                            (4, 5, 1), (1, 5, 1), (2,3,1), (1,7,1), (4,9,1),(9,7,1)])
-                   
-path = "/work3/s204163/wiki/graph_logs/graphs/graph-100000-2023-11-14.22:49.pickle"
-with open(path, "rb") as f:
-    Gx: nx.Graph = pickle.load(f)
 
+print("Begin")
+if __name__ == "__main__":
+    path = "/work3/s204163/wiki/test/subgraph_001.pkl"
+    # path = "/work3/s204163/wiki/test/subgraph_005.pkl"
+    # path = "/work3/s204163/wiki/test/subgraph_010.pkl"
+    with open(path, "rb") as f:
+        G: nx.Graph = pickle.load(f)
+    print("Loaded subgraph_1%")
+    # print("Loaded subgraph_5%")
+    # print("Loaded subgraph_10%")
+    
 
-print("Spectral-customs:",spectral_clustering(Gx))
+    print("Spectral-customs:",spectral_clustering(G))
 
-# clustering = SpectralClustering(n_clusters=2, assign_labels='kmeans', random_state=0, affinity="precomputed")
-# clustering.fit(adjacency_matrix(edge_list(Gx)))
-# print("Spectral-sklearn:",clustering.labels_)
+    # clustering = SpectralClustering(n_clusters=2, assign_labels='kmeans', random_state=0, affinity="precomputed")
+    # clustering.fit(adjacency_matrix(edge_list(Gx)))
+    # print("Spectral-sklearn:",clustering.labels_)
