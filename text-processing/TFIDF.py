@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import math
 from collections import Counter
+from collections import Counter
 
 class TFIDF():
     def __init__(self, max_features=None) -> None:
@@ -27,6 +28,7 @@ class TFIDF():
         word_counts = Counter(text.split())
         max_val = max(word_counts.values())
         self.tfdic[idx] = {word: count / max_val for word, count in word_counts.items()}
+
 
     
     '''
