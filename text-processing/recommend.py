@@ -41,7 +41,7 @@ def _find_closest_articles(idx: int, n: int, X: np.ndarray, labels: np.ndarray) 
     return original_indices[:n]
 
 
-def recommend(id: int, n: int = 10, tfidf_features_path: str = "/work3/s204163/wiki/tfidffeatures.csv", text_labels_path: str = "/work3/s204163/wiki/text_labels.csv", article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]:
+def recommend(id: int, n: int = 10, embedding_method = 'tfidf', cluster_method = 'k-means',article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]: #tfidf_features_path: str = "/work3/s204163/wiki/tfidffeatures.csv", text_labels_path: str = "/work3/s204163/wiki/text_labels.csv", article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]:
     """
     Provides recommendations for articles similar to a given article based on precomputed
     TF-IDF features and class labels from clustering.
@@ -75,6 +75,14 @@ def recommend(id: int, n: int = 10, tfidf_features_path: str = "/work3/s204163/w
     find articles similar to the specified article. It requires the paths to the data
     files containing article IDs, features, and labels. 
     """
+
+    base_path = "/work3/s204163/wiki/"
+    embedding_type = 'tf-idf' if embedding_method == 'tf-idf' else 'sbert'
+    clustering_type = 'kmeans' if cluster_method == 'k-means' else 'dbscan'
+
+    tfidf_features_path = f"{base_path}{embedding_type}features.csv"
+    text_labels_path = f"{base_path}text_labels_{embedding_type}_{clustering_type}.csv"
+    
     # Read the labels from clustering (so we dont have to compute them for every recommendation), 
     # Read the article_ids from the dataset
     # Also read the features vectors from tf-idf so we dont have to compute them every time
