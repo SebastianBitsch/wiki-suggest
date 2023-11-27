@@ -41,7 +41,7 @@ def _find_closest_articles(idx: int, n: int, X: np.ndarray, labels: np.ndarray) 
     return original_indices[:n]
 
 
-def recommend(id: int, n: int = 10, tfidf_features_path: str = "/work3/s204163/wiki/tfidffeatures1500.csv", text_labels_path: str = "/work3/s204163/wiki/text_labels.csv", article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]:
+def recommend(id: int, n: int = 10, tfidf_features_path: str = "/work3/s204163/wiki/tfidffeatures.csv", text_labels_path: str = "/work3/s204163/wiki/text_labels.csv", article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]:
     """
     Provides recommendations for articles similar to a given article based on precomputed
     TF-IDF features and class labels from clustering.
@@ -53,7 +53,7 @@ def recommend(id: int, n: int = 10, tfidf_features_path: str = "/work3/s204163/w
     n : int, optional
         Number of recommendations to return, default is 10.
     tfidf_features_path : str, optional
-        Path to the precomputed tf-idf feature vectors, default is '/work3/s204163/wiki/tfidffeatures1500.csv'.
+        Path to the precomputed tf-idf feature vectors, default is '/work3/s204163/wiki/tfidffeatures.csv'.
     text_labels_path : str, optional
         Path to the text labels, default is '/work3/s204163/wiki/text_labels.csv'.
     article_ids_path : str, optional
@@ -105,6 +105,5 @@ if __name__ == "__main__":
 
     # Test it works, get the 20 closest articles to some random one
     neighbours_idx = recommend(3283758, n = 20)
-
     for id in neighbours_idx:
         print(f"{id} : {all_articles[id][:100]}")

@@ -1,0 +1,12 @@
+# core
+numpy
+pandas
+networkx
+
+# not really essential
+tqdm
+matplotlib
+scikit-learn
+netwulf
+sentence-transformers
+seaborn
