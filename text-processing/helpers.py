@@ -68,7 +68,7 @@ def pca(X, labels, title = "", n_components = 2, figsize = (5,5)):
 
     x, y = X_pca.T
     labels = labels if type(labels) == list else labels.tolist()
-    scatter = plt.scatter(x, y, c = labels, cmap="Set1", label = labels)
+    scatter = plt.scatter(x, y, c = labels, cmap="Set1", label = labels, alpha=0.3)
     plt.legend(*scatter.legend_elements())
 
     plt.title(title)

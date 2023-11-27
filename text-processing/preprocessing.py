@@ -7,7 +7,7 @@ import numpy as np
 
 from nltk.corpus import stopwords as sw
 from nltk.stem import PorterStemmer
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sentence_transformers import SentenceTransformer
 
 from TFIDF import TFIDF
 from utils.read_data import read_articles_file, read_article_ids_file
@@ -82,8 +82,9 @@ if __name__ == "__main__":
 
     article_texts_path = "/work3/s204163/wiki/article_texts"
     article_ids_path = "/work3/s204163/wiki/article_ids"
-    clean_texts_path = "/work3/s204163/wiki/cleaned_texts1500"
-    tfidf_features_path = "/work3/s204163/wiki/tfidffeatures1500.csv"
+    clean_texts_path = "/work3/s204163/wiki/cleaned_texts"
+    tfidf_features_path = "/work3/s204163/wiki/tfidffeatures.csv"
+    sbert_features_path = "/work3/s204163/wiki/sbertfeatures.csv"
 
     all_articles = read_articles_file(article_texts_path, N = N, read_titles = True)
     article_ids = read_article_ids_file(article_ids_path, N = N)
@@ -105,9 +106,14 @@ if __name__ == "__main__":
 
     # Do tfidf
     print("tf-idf...")
-
     tfidf = TFIDF(N_TFIDF_FEATURES)
     X = tfidf.vectorize(corpus)
-    np.savetxt("/work3/s204163/wiki/tfidffeatures.csv", X, delimiter=",")
+    np.savetxt(tfidf_features_path, X, delimiter=",")
+
+    # Do SBERT
+    print("s-bert ...")
+    sbert = SentenceTransformer('all-MiniLM-L6-v2')
+    embeddings = sbert.encode(corpus)
+    np.savetxt(sbert_features_path, embeddings, delimiter=",")
 
     print("Done!")

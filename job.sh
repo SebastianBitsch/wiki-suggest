@@ -1,13 +1,13 @@
 #!/bin/bash
 
 ### -- set the job Name -- 
-#BSUB -J CREATE_INDEX
+#BSUB -J PREPROCESS
 
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
 
-#BSUB -o logs/read_lines_%J.out
-#BSUB -e logs/read_lines_%J.err
+#BSUB -o logs/preprocess_%J.out
+#BSUB -e logs/preprocess_%J.err
 # -- end of LSF options --
 
 ### -- specify queue -- 
@@ -33,4 +33,5 @@
 ##BSUB -N
 
 source .env/bin/activate
-bzcat /work3/s204163/wiki/wiki-revisions-filtered.bz2 | wc -l
+
+python3 text-processing/preprocessing.py
