@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 import math
+
 from collections import Counter
-from collections import Counter
+
 
 class TFIDF():
     def __init__(self, max_features=None) -> None:
@@ -16,6 +17,7 @@ class TFIDF():
     The value of all words is devided by the value of the most frequent word.
     '''
     def _term_frequency_dic(self, text:str, idx:int):
+
         # self.tfdic[idx] = {}
         # for word1 in set(text.split()):
         #     self.tfdic[idx][word1] = 0
@@ -42,6 +44,7 @@ class TFIDF():
     '''
     def _inverse_doc_freq(self, texts):
         doc_count = len(texts)
+
         # words = set(word for text in texts for word in text.split())
         # for word in words:
         #     df = sum(word in text for text in texts)
