@@ -115,12 +115,14 @@ class KMeans:
 # Example usage
 if __name__ == "__main__":
     
+    N_CLUSTERS = 10
+
     # Generate points
     points = np.random.uniform(-10, 10, (100, 2))
 
     # Cluster
-    kmeans = KMeans(n_clusters = 5, n_iterations = 10)
-    labels = kmeans.cluster(points, n_runs = 5)
+    kmeans = KMeans(n_clusters = N_CLUSTERS, n_iterations = 10)
+    labels = kmeans.cluster(points)
 
     print(labels)
 
