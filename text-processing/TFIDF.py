@@ -3,6 +3,7 @@ import pandas as pd
 import math
 
 from collections import Counter
+from collections import Counter
 
 
 class TFIDF():
