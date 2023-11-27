@@ -1,59 +1,66 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import pickle
-import glob
 import random
 from tqdm import tqdm
-
+import glob
+# from utils.pickle_dump import pickle_dump
 
 
 # counts number of shortest path to node from root, part 1+2 of betweenness
-def path_counting(G: nx.Graph, n_random_nodes: int = -1):
-    dict_list = {}
+def path_weighting(G: nx.Graph, n_random_nodes: int = -1):
+    node_weighting = {}
     n_random_nodes = min(n_random_nodes, G.number_of_nodes()) if n_random_nodes > 0 else G.number_of_nodes()
+    # print(n_random_nodes)
     for root in tqdm(random.sample(G.nodes, n_random_nodes), mininterval=int(n_random_nodes*0.1)): # Foreach node as root
-        dist_dict = {0: {root: 1}}
-        queue     = set((root,))
-        visited   = set((root,))
-        dist = 1
-        while True: # Run bfs
-            
-            
-            next_queue = {}
-            for node in queue: 
-                for nodeb in set(G.neighbors(node))-unique_nv: # Neighbours
-                    next_queue[nodeb] = next_queue.get() #G.edges[node,nodeb]['weight']
-                # next_queue.extend(list(G.neighbors(node))*dist_dict[dist-1][node]) # memory inefficient
-            unique_nv = set(next_queue) - visited # Get individual which are yet visited
-            # Check if no neighbour
-            if not unique_nv: break
-            # 
-            step_dict = {}
-            for n in unique_nv:
-                step_dict[n] = next_queue.count(n)
-
-            
-            dist_dict[dist] = step_dict
-            visited.update(unique_nv)
-            queue = unique_nv
-            dist += 1
-        dict_list[root] = dist_dict
-    return dict_list
-
-# betweenness centrality for edges
-def bc_edges(G: nx.Graph, ddist: dict): 
-    minmax = lambda x,y: (min(x,y),max(x,y))
-    betweennees = {minmax(*n_pair):0 for n_pair in G.edges()}
-    for root,dist in tqdm(ddist.items(), mininterval=int(len(ddist)*0.1)):
+        queue        = [root]
+        node_paths   = {root:[None]}
+        dist_node    = {0:[root]}
+        visited_dist = {root:0} # visted node: distance from root
+        for nodeP in queue: # Run bfs
+            for nodeC in set(G.neighbors(nodeP)): # Neighbours/Childrens
+                DistRoot = visited_dist[nodeP] + G.edges[nodeP,nodeC].get('weight',1) # distance from root
+                is_visited = nodeC in visited_dist
+                if   is_visited and DistRoot >  visited_dist[nodeC]: continue
+                elif is_visited and DistRoot == visited_dist[nodeC]:
+                    node_paths[nodeC].append(nodeP)
+                elif is_visited:#   DistRoot <  visited_dist[nodeC]
+                    node_paths[nodeC]  = [nodeP]
+                    dist_node[visited_dist[nodeC]].remove(nodeC)
+                else:
+                    node_paths[nodeC]  = [nodeP]
+                dist_node[DistRoot] = [*dist_node.get(DistRoot,[]), nodeC]
+                queue.append(nodeC)
+                visited_dist[nodeC] = DistRoot
+        dist_node = {key:val for key,val in dist_node.items() if val} # remove empties
+        node_weighting[root] = (node_paths,dist_node)
+    return node_weighting
+        
+def bc_wedges(G: nx.Graph, ddist: dict): # betweenness centrality for edges w. weights
+    minmax = lambda pair: (min(*pair),max(*pair))
+    betweennees = {minmax(n_pair):0 for n_pair in G.edges()}
+    # print(betweennees)
+    for root,dist_dict in ddist.items():
+        # print("Root:",root)
+        node_paths = dist_dict[0]
+        dist_node  = dist_dict[1]
+        Order = sorted(dist_node,reverse=True)
         prev_br = {}
-        for idx in reversed(range(max(dist))):
-            for n_to in dist[idx]: #                      __\  to node
-                for n_from in dist[idx+1]: # from node __/  /
-                    if minmax(n_from,n_to) in betweennees: # has an edge
-                        l2_udv = dist[idx][n_to]/dist[idx+1][n_from]
-                        br_uv = l2_udv + l2_udv*prev_br.get((idx+1,n_from),0)
-                        betweennees[minmax(n_from,n_to)] += br_uv
-                        prev_br[(idx,n_to)] = prev_br.get((idx,n_to), 0) + br_uv
+        for idxD in range(len(Order)-1):
+            # print(node_paths)
+            # print(dist_node)
+            # raise Exception()
+            for n_from in set(dist_node[Order[idxD]]):
+                for n_to in node_paths[n_from]:
+                    # print(n_from,n_to)
+                    # if minmax([n_from,n_to]) in betweennees:
+                    if n_to == None:
+                        continue
+                    l2_udv = len(node_paths[n_to])/len(node_paths[n_from])
+                    
+                    br_uv = l2_udv + l2_udv*prev_br.get(n_from,0)
+                    betweennees[minmax([n_from,n_to])] += br_uv
+                    prev_br[n_to] = prev_br.get(n_to, 0) + br_uv
     for key,val in list(betweennees.items()):
         betweennees[key] = val/2
     return betweennees
@@ -111,17 +118,29 @@ def visualize_communities(graph, communities, i):
     )
 
 if __name__ == "__main__":
-    output_path = "/work3/s204163/wiki/test/"
+    filepath:str = "/work3/s204163/wiki/"
+    extension:str = "pkl"
+    
+    # output_path = "/work3/s204163/wiki/test/"
     # Load karate graph and find communities using Girvan-Newman
     # G = nx.karate_club_graph()
 
-    path = "/work3/s204163/wiki/logs/graph.adjlist-2023-11-13 11:01:27.497461"
+    path = "/work3/s204163/wiki/test/biggest_subgraph.pkl"
     with open(path, "rb") as f:
         G: nx.Graph = pickle.load(f)
     
-    dict_path = path_counting(G, -1)
-    bc_dict = bc_edges(G, dict_path)
-    pickle.dump(bc_dict, output_path+"betweenness.pkl")
+    dict_path = path_weighting(G, 1)
+    bc_dict = bc_wedges(G, dict_path)
+    # pickle_dump(bc_dict,"test/betweenness")
+    
+    full_path = filepath + "test/betweenness"
+    n_exist = len(glob.glob(full_path+"*"))
+    with open(f"{full_path}_{n_exist}.{extension}") as handle:
+        pickle.dump(bc_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
     GN_out = Girvan_Newman(G,bc_dict,10)
-    pickle.dump(GN_out, output_path+"GirvinNewman.pkl")
-
+    full_path = filepath + "test/GirvinNewman"
+    n_exist = len(glob.glob(full_path+"*"))
+    with open(f"{full_path}_{n_exist}.{extension}") as handle:
+        pickle.dump(GN_out, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # pickle_dump(GN_out,"test/GirvinNewman")
