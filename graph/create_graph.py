@@ -39,6 +39,7 @@ def plot_iteration_times(iteration_times):
     plt.title("Time per iteration")
     plt.tight_layout()
     plt.savefig(os.path.join(OUTPUT_DIR, f"iteration_times.png"))
+    plt.close()
 
 def plot_nodes_per_iteration(nodes_per_iteration):
     plt.figure(figsize=(15, 15))
@@ -48,6 +49,7 @@ def plot_nodes_per_iteration(nodes_per_iteration):
     plt.title("Nodes per iteration")
     plt.tight_layout()
     plt.savefig(os.path.join(OUTPUT_DIR, f"nodes_per_iteration.png"))
+    plt.close()
 
 def plot_edges_per_iteration(edges_per_iteration):
     plt.figure(figsize=(15, 15))
@@ -58,6 +60,7 @@ def plot_edges_per_iteration(edges_per_iteration):
     plt.title("Edges per iteration")
     plt.tight_layout()
     plt.savefig(os.path.join(OUTPUT_DIR, f"edges_per_iteration.png"))
+    plt.close()
 
 def run():
 

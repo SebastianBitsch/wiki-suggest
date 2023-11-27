@@ -19,8 +19,8 @@ START_TIME = time.time()
 
 ARTICLE_PATH = "/work3/s204163/wiki/data-batches/articles_keep_cutoff98_sync.pickle"
 
-OUTPUT_DIR = "/work3/s204163/wiki/graph_logs/graphs/filtered_article_graphs"
-LOG_FILENAME = f"/work3/s204163/wiki/graph_logs/logs/FArticleGraph-{FORMAT_DATE}.txt"
+OUTPUT_DIR = "/work3/s204163/wiki/graph_logs/graphs/filtered_article_graphs_compact"
+LOG_FILENAME = f"/work3/s204163/wiki/graph_logs/logs/FCArticleGraph-{FORMAT_DATE}.txt"
 
 
 def get_batches(data:list, batch_size):
@@ -106,6 +106,12 @@ def run():
         plot_iteration_times(iteration_times)
         plot_nodes_per_iteration(iteration_nodes)
         plot_edges_per_iteration(iteration_edges)
+    
+    G.compact()
+    
+    log_message(G.stats(memory_usage=True), LOG_FILENAME, console_log=CONSOLE_LOG)
+    log_message(memory_usage_of(G, "Graph")[1], LOG_FILENAME, console_log=CONSOLE_LOG)
+    
         
         
     # Save graph

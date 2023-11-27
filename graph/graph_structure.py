@@ -116,17 +116,38 @@ class Revision_User_Graph:
         self.graph.add_node(node, article=article)
         
     def add_article(self, article: Article):
+        article_id = f"A{article.article_id}"
+        self.add_node(article_id, article=True)
         
-        self.add_node(article.article_id, article=True)
         
         for user_id in article.user_ids:
             user_id = user_id.strip()
+            user_id = f"U{user_id}"
             self.add_node(user_id, article=False)
-            self.graph.add_edge(user_id, article.article_id, weight=1)
+            self.graph.add_edge(user_id, article_id, weight=1)
         
     def create_graph_from_articles(self, articles: list[Article]):
         for article in tqdm(articles, disable = self.tqdm_disable):
             self.add_article(article)
+        
+      
+        
+        
+    def compact(self):
+        singular_nodes = []
+        # Delete users with only 1 edge
+        for node in self.graph.nodes(data=True):
+            if node[1]["article"]:
+                continue
+            
+            node_id = node[0]
+            if self.graph.degree(node_id) <= 1:
+                singular_nodes.append(node_id)
+        
+        self.graph.remove_nodes_from(singular_nodes)
+            
+            
+            
     
 
 
