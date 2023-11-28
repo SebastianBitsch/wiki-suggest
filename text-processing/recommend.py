@@ -41,65 +41,61 @@ def _find_closest_articles(idx: int, n: int, X: np.ndarray, labels: np.ndarray) 
     return original_indices[:n]
 
 
-def recommend(id: int, n: int = 10, embedding_method = 'tfidf', cluster_method = 'k-means',article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]: #tfidf_features_path: str = "/work3/s204163/wiki/tfidffeatures.csv", text_labels_path: str = "/work3/s204163/wiki/text_labels.csv", article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]:
+def recommend(ids: list[int], n: int = 10, embedding_method: str = 'tfidf', cluster_method: str = 'kmeans', article_ids_path: str = "/work3/s204163/wiki/article_ids") -> list[int]:
     """
-    Provides recommendations for articles similar to a given article based on precomputed
-    TF-IDF features and class labels from clustering.
+    Provides recommendations for a user who has edited a list of articles. 
+    Finds similar article based on precomputed feature-vectors and class labels from clustering.
 
     Parameters
     ----------
-    id : int
-        The unique identifier of the article
+    ids : list[int]
+        The unique identifier of the article(s) to recommend for
     n : int, optional
-        Number of recommendations to return, default is 10.
-    tfidf_features_path : str, optional
-        Path to the precomputed tf-idf feature vectors, default is '/work3/s204163/wiki/tfidffeatures.csv'.
-    text_labels_path : str, optional
-        Path to the text labels, default is '/work3/s204163/wiki/text_labels.csv'.
+        Number of recommendations to return per article, default is 10.
+    embedding_method : str, default = 'tfidf'
+        The embedding to use when recommending, choices are: 'tfidf', 'sbert'
+    cluster_method : str, default = 'k-means'
+        The clustering method to use, choices are: 'kmeans', 'dbscan'
     article_ids_path : str, optional
         Path to the article IDs, default is '/work3/s204163/wiki/article_ids'.
 
     Returns
     -------
-    list[int]
-        A list of article IDs representing the recommended articles.
+    set[int]
+        A set of article IDs representing the recommended articles.
 
     Examples
     --------
-    >>> recommend(12345, n=5)
+    >>> recommend([12345], n=5)
     # Returns a list of IDs for 5 articles recommended based on the article with ID 12345.
-
-    Notes
-    -----
-    This function utilizes precomputed TF-IDF features and clustering labels to
-    find articles similar to the specified article. It requires the paths to the data
-    files containing article IDs, features, and labels. 
     """
-
+    
+    # Read the article_ids from the dataset
+    article_ids = read_article_ids_file(article_ids_path)
+    
+    # Get the paths of features and labels based on function input
     base_path = "/work3/s204163/wiki/"
-    embedding_type = 'tf-idf' if embedding_method == 'tf-idf' else 'sbert'
-    clustering_type = 'kmeans' if cluster_method == 'k-means' else 'dbscan'
-
-    tfidf_features_path = f"{base_path}{embedding_type}features.csv"
-    text_labels_path = f"{base_path}text_labels_{embedding_type}_{clustering_type}.csv"
+    features_path = f"{base_path}{embedding_method}features.csv"
+    text_labels_path = f"{base_path}text_labels_{embedding_method}_{cluster_method}.csv"
     
     # Read the labels from clustering (so we dont have to compute them for every recommendation), 
-    # Read the article_ids from the dataset
-    # Also read the features vectors from tf-idf so we dont have to compute them every time
-    article_ids = read_article_ids_file(article_ids_path)
+    # Also read the features vectors we dont have to compute them every time
     labels = np.genfromtxt(text_labels_path, dtype=np.int32, delimiter=",")
-    X = np.loadtxt(tfidf_features_path, delimiter= ",")
+    features = np.loadtxt(features_path, delimiter= ",")
 
     # Create a maping from position in array to id of article and vice versa
     id2index = {id : i for (i, id) in enumerate(article_ids)}
     index2id  = {i : id for (i, id) in enumerate(article_ids)}
     
-    # get the index of the id
-    idx = id2index[id]
+    # Do recommendations
+    recommendations = set()
+    for id in ids:
+        idx = id2index[id]                                                          # get the index of the id
+        r = [index2id[i] for i in _find_closest_articles(idx, n, features, labels)] # add recommendations for this id
+        recommendations.update(r)
     
-    # Return the ids of the N closest articles
-    return [index2id[i] for i in _find_closest_articles(idx, n, X, labels)]
-
+    # Return the ids of the closest articles
+    return recommendations
 
 
 if __name__ == "__main__":
@@ -110,8 +106,7 @@ if __name__ == "__main__":
     all_articles = read_articles_file(article_texts_path, read_titles = True, return_titles = False)
     article_ids = read_article_ids_file(article_ids_path)
 
-
-    # Test it works, get the 20 closest articles to some random one
-    neighbours_idx = recommend(3283758, n = 20)
+    # Test it works, get the 5 closest articles to some random articles
+    neighbours_idx = recommend([11920088], n = 20, embedding_method='sbert', cluster_method='kmeans')
     for id in neighbours_idx:
         print(f"{id} : {all_articles[id][:100]}")
