@@ -106,7 +106,7 @@ if __name__ == "__main__":
     all_articles = read_articles_file(article_texts_path, read_titles = True, return_titles = False)
     article_ids = read_article_ids_file(article_ids_path)
 
-    # Test it works, get the 5 closest articles to some random articles
+    # Test it works, get the 20 closest articles to some random articles
     neighbours_idx = recommend([11920088], n = 20, embedding_method='sbert', cluster_method='kmeans')
     for id in neighbours_idx:
         print(f"{id} : {all_articles[id][:100]}")

@@ -1,8 +1,6 @@
 import numpy as np
-import pandas as pd
 import math
 
-from collections import Counter
 from collections import Counter
 
 
@@ -18,20 +16,9 @@ class TFIDF():
     The value of all words is devided by the value of the most frequent word.
     '''
     def _term_frequency_dic(self, text:str, idx:int):
-
-        # self.tfdic[idx] = {}
-        # for word1 in set(text.split()):
-        #     self.tfdic[idx][word1] = 0
-        #     for word2 in text.split():
-        #         if word1 == word2:
-        #             self.tfdic[idx][word1] += 1
-        # max_val = max(self.tfdic[idx].values())
-        # for k,v in zip(self.tfdic[idx].keys(),self.tfdic[idx].values()):
-        #     self.tfdic[idx][k] = v/max_val
         word_counts = Counter(text.split())
         max_val = max(word_counts.values())
         self.tfdic[idx] = {word: count / max_val for word, count in word_counts.items()}
-
 
     
     '''
@@ -45,13 +32,6 @@ class TFIDF():
     '''
     def _inverse_doc_freq(self, texts):
         doc_count = len(texts)
-
-        # words = set(word for text in texts for word in text.split())
-        # for word in words:
-        #     df = sum(word in text for text in texts)
-        #     # self.idfdic[word] = math.log(doc_count / (1 + df))
-        #     ### Use smoothing like sklearn in order to avoid zero division
-        #     self.idfdic[word] = math.log(1+doc_count) - math.log((1+ df))+1
 
         word_document_counts = Counter(word for text in texts for word in set(text.split()))
         self.idfdic = {word: math.log(1 + doc_count) - math.log(1 + df) + 1 for word, df in word_document_counts.items()}
@@ -68,6 +48,7 @@ class TFIDF():
         for i, text in enumerate(texts):
             self._term_frequency_dic(text,i)
         self._inverse_doc_freq(texts)
+    
     '''
     In order to work with the data, we need to return a matrix.
     In which the texts are TF-IDF vectorized
