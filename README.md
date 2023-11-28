@@ -1,4 +1,21 @@
 # wiki-suggest
+*This is an exam project for cource 02807 Computational Tools for Data Science.*
+
+In this repository you will find an implementation of a recommendation engine for editors of Wikipedia. The purpose is to help editors make better decisions about what article they should edit next, taking into consideration what articles they have previosuly edited.
+
+The recommendation engine consists of two equal parts that together form a recommendation for a given user;
+1. **Articles most similar to the ones you have edited previously.** 
+    All code related to this is in the `text-processing/` directory
+    - End to end recommendation based on what articles a user has edited is done in `recommend.py`
+    - Preprocessing to create feature vectors, clusters, etc. is done in `preprocessing.py`
+    - TF-IDF is implemented in `TFIDF.py`
+    - K-Means is implemented in `kmeans.py`
+    - DBSCAN is implemented in `dbscan.py`
+    - Notebooks generally contain exploratory analysis and plotting
+
+2. **Articles other people like you have edited**
+    - 
+
 
 ## Practicals
 
