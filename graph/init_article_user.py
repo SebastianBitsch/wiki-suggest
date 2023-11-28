@@ -9,6 +9,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
+
+"""
+UTILITY FUNCTIONS FOR INITIALIZING GATHERING ALL ARTICLES AND USERS
+AND STORING THEM INTO FILES
+CAN ALSO PLOT THE DISTRIBUTION OF USERS AND ARTICLES
+"""
+
 def init_articles_users(batch_files, log_file, console_log = True):
     articles = {}
     users = {}
@@ -94,28 +101,6 @@ def article_user_plots():
     ax[1] = df_article.apply(np.log).plot(kind='box')
     fig.savefig(os.path.join(BASEDIR, "log_boxplot.png"))
 
-def count_edges():
-    with open("/work3/s204163/wiki/data-batches/articles.pickle", "rb") as file:
-        articles = pickle.load(file)
-    progressbar = tqdm(articles.values())
-    
-    edges = set()
-    for article in progressbar:
-        # An edge between two users can only be added once per article
-            
-        for user_id in article.user_ids:
-            for user_id2 in article.user_ids:
-                if user_id != user_id2:
-                    edge = tuple(sorted((user_id, user_id2)))
-                    edges.add(edge)
-    
-        # Update progressbar
-        progressbar.set_description(f"Counting edges {len(edges)}", refresh=True)
-        
-        
-    return len(edges)
 
 
 
-if __name__ == '__main__':
-    count_edges()

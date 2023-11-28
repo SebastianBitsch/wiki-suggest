@@ -14,7 +14,8 @@ import netwulf as nw # Visualize Graph
 from utils.read_data import read_revisions
 from batchjob_utils import log_message, memory_usage_of
 
-# Revision class, for sending information around as an object
+# Dataclasses for structuring data
+#region Dataclasses
 @dataclass
 class Revision:
     article_id : set[str]
@@ -31,17 +32,20 @@ class Article:
 class User:
     user_id : str
     article_ids : set[str] = field(default_factory=set)
+#endregion
 
 
 class Revision_User_Graph:
     def __init__(self):
         self.graph = nx.Graph()
-        self.tqdm_disable = True
+        self.tqdm_disable = True #Used for disabling tqdm progress bars
     
+    #region Utility methods
     def __repr__(self):
         return f"Revision_User_Graph(graph={self.graph})"
     
-    def stats(self, memory_usage : bool = False):
+    # Returns string, containing memory related stats about the graph
+    def stats(self, memory_usage : bool = False) -> str:
         stats = [
             f"Graph stats:",
             f"Number of nodes: {self.graph.number_of_nodes()}",
@@ -64,13 +68,20 @@ class Revision_User_Graph:
         
         return "\n".join(stats)
     
+    # Saves the graph to a file
     def save_graph(self, file_path: str):
         with open(file_path, "wb") as file: 
             pickle.dump(self.graph, file)
         
+    # Loads the graph from a file
     def load_graph(self, file_path: str):
         with open(file_path, "rb") as file: 
             self.graph = pickle.load(file)
+    
+    # Opens a local server for viewing the graph
+    def visualize(self):
+        nw.visualize(self.graph)
+    #endregion
 
     # Adds a single node to the graph from user_id
     def add_revision(self, revision: Revision = None, user_id: str = None):
@@ -81,10 +92,7 @@ class Revision_User_Graph:
             self.graph.add_node(revision.user_id)
         return None
         
-    # Opens a local server for viewing the graph
-    def visualize(self):
-        nw.visualize(self.graph)
-        
+    
     # Set weights between nodes
     # TODO - Given an integer, set the weights of the graph
     def add_edge(self, u, v, weight: int):
@@ -97,6 +105,11 @@ class Revision_User_Graph:
         
     # TODO - Method for calculating weights between nodes
     def calculate_weights(self, articles: list[Article] | dict[str, Article]):
+        """
+        Weights are calculated by the number of articles two users have in common.
+        NOTICE that an edge is not counted twice, since the order of the users is important.
+        IE. an edge between user1 and user2 is the same as an edge between user2 and user1.
+        """
         if isinstance(articles, dict):
             articles = list(articles.values())
         for article in tqdm(articles, disable = self.tqdm_disable):
@@ -115,7 +128,9 @@ class Revision_User_Graph:
     def add_node(self, node:str, article:bool):
         self.graph.add_node(node, article=article)
         
+    
     def add_article(self, article: Article):
+        "Creates edges between all mentioned editors of an article to the article node"
         article_id = f"A{article.article_id}"
         self.add_node(article_id, article=True)
         
@@ -130,10 +145,11 @@ class Revision_User_Graph:
         for article in tqdm(articles, disable = self.tqdm_disable):
             self.add_article(article)
         
-      
-        
-        
+    
     def compact(self):
+        """
+        Special method for removing users that only have 1 edge to an article, only used if needed for when visualizing a graph.
+        """
         singular_nodes = []
         # Delete users with only 1 edge
         for node in self.graph.nodes(data=True):
@@ -147,11 +163,13 @@ class Revision_User_Graph:
         self.graph.remove_nodes_from(singular_nodes)
             
             
-            
-    
-
 
 def create_graph(file_path, output_file, N, **kwargs) -> nx.Graph:
+    """
+    Original but deprecated method for creating a graph only based on users. And with no Article Nodes. It is slow and memory intensive.
+    Since the average article has on average 73 editors, meaning that adding a single article have the potential of creating 73^2 new edges.
+    Completely excalating the number of edges into the hundreds of millions.
+    """
     # kwargs
     # log_file : str = None, 
     # log_interval : int = None, 

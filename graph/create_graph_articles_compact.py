@@ -23,7 +23,7 @@ OUTPUT_DIR = "/work3/s204163/wiki/graph_logs/graphs/filtered_article_graphs_comp
 LOG_FILENAME = f"/work3/s204163/wiki/graph_logs/logs/FCArticleGraph-{FORMAT_DATE}.txt"
 
 
-def get_batches(data:list, batch_size):
+def get_batches(data:list, batch_size) -> list[pd.DataFrame]:
     N = len(data)
     batches = []
     for i in range(0, N, batch_size):
@@ -77,6 +77,7 @@ def run():
     
     N_batches = len(batches)
 
+    # Analytics variables
     iteration_times = []
     iteration_nodes = []
     iteration_edges = []
@@ -133,6 +134,11 @@ def run():
     with open(os.path.join(OUTPUT_DIR, f"iteration_edges.pickle"), "wb") as f:
         pickle.dump(iteration_edges, f)
     
+
+"""
+NEVER ENDED UP USING THIS
+BUT ESSENTIALLY IT COMPRESSES THE GRAPH, SUCH THAT USERS WITH ONLY 1 ARTICLE IS NOT INCLUDED, SINCE THEY CAN BE RECONSTRUCTED FROM THE ARTICLE NODES IN THE GRAPH
+"""
 
 if __name__ == '__main__':
     run()

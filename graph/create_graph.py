@@ -119,7 +119,7 @@ def run():
     log_message(f"Average iteration time: {np.mean(iteration_times):.0f}", LOG_FILENAME, console_log=CONSOLE_LOG)
     
     
-    
+    # Update analytics for in real time updates
     with open(os.path.join(OUTPUT_DIR, f"iteration_times.pickle"), "wb") as f:
         pickle.dump(iteration_times, f)
     with open(os.path.join(OUTPUT_DIR, f"iteration_nodes.pickle"), "wb") as f:

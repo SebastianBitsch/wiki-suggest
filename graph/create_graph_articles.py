@@ -8,6 +8,7 @@ from tqdm import tqdm
 import time
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
 
 sns.set_theme()
 
@@ -23,16 +24,16 @@ OUTPUT_DIR = "/work3/s204163/wiki/graph_logs/graphs/filtered_article_graphs"
 LOG_FILENAME = f"/work3/s204163/wiki/graph_logs/logs/FArticleGraph-{FORMAT_DATE}.txt"
 
 
-def get_batches(data:list, batch_size):
+def get_batches(data:list, batch_size) -> list[pd.DataFrame]:
     N = len(data)
     batches = []
     for i in range(0, N, batch_size):
         batches.append(data[i:i+batch_size])
     return batches
 
+
 def plot_iteration_times(iteration_times):
     plt.figure(figsize=(15, 15))
-
     plt.plot(iteration_times)
     plt.xlabel("Iteration")
     plt.ylabel("Time (s)")
@@ -77,6 +78,7 @@ def run():
     
     N_batches = len(batches)
 
+    # Analytics variables
     iteration_times = []
     iteration_nodes = []
     iteration_edges = []
@@ -119,7 +121,7 @@ def run():
     log_message(f"Average iteration time: {np.mean(iteration_times):.0f}", LOG_FILENAME, console_log=CONSOLE_LOG)
     
     
-    
+    # Update analytics for in real time plotting
     with open(os.path.join(OUTPUT_DIR, f"iteration_times.pickle"), "wb") as f:
         pickle.dump(iteration_times, f)
     with open(os.path.join(OUTPUT_DIR, f"iteration_nodes.pickle"), "wb") as f:

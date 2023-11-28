@@ -17,10 +17,12 @@ path = '/work3/s204163/wiki/data-batches/wiki-revisions-filtered-df.pickle'
 log = '/work3/s204163/wiki/data-batches/df_stats_log.txt'
 with open(path, 'rb') as f:
     df = pickle.load(f)
-    
+
 category_count = defaultdict(int)
 category_article = defaultdict(set)
 N = len(df)
+
+# Count category references given revisions or articles
 for index, revision in tqdm(df.iterrows(), total=N, disable = True):
     for category in revision['category']:
         category_count[category] += 1
