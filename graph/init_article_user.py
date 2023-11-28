@@ -64,7 +64,7 @@ def article_user_plots():
         users = pickle.load(file)
         
     
-    user_lengths = [len(userarticle_lengths = [len(article.user_ids) for article in articles.values()].article_ids) for user in users.values()]
+    user_lengths = [len(article_lengths = [len(article.user_ids) for article in articles.values()].article_ids) for user in users.values()]
     df_user = pd.DataFrame({"user": user_lengths})
     df_article = pd.DataFrame({"article": article_lengths})
     print(df_user["user"].describe().apply("{0:.2f}".format))
@@ -114,6 +114,8 @@ def count_edges():
         
         
     return len(edges)
+
+
 
 if __name__ == '__main__':
     count_edges()

@@ -1,6 +1,7 @@
 import sys
 
-def log_message(message : str, file_path : str = None, console_log : bool = False):
+# Allows to log messages both to a file and to the console
+def log_message(message : str, file_path : str = None, console_log : bool = False) -> None:
     #Log message to file, append if file exists, create if it does not
     if file_path:
         with open(file_path, "a+") as file:
@@ -11,8 +12,8 @@ def log_message(message : str, file_path : str = None, console_log : bool = Fals
     
             
 
-# Get memory usage of a variable in bytes, KB, MB, GB  
-def memory_usage_of(variable : any, logging_message_id : str):
+# Get memory usage of a variable in bytes, KB, MB, GB and format the string
+def memory_usage_of(variable : any, logging_message_id : str) -> (int, str):
     if type(variable) == list:
         mem = sum([sys.getsizeof(item) for item in variable])
     elif type(variable) == dict:
