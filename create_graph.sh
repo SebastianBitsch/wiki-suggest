@@ -6,8 +6,8 @@
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
 
-#BSUB -o /work3/s204163/logs/create_graph_%J.out
-#BSUB -e /work3/s204163/logs/create_graph_%J.err
+#BSUB -o /work3/s204163/wiki/graph_logs/hpc/create_graph_userV2_%J.out
+#BSUB -e /work3/s204163/wiki/graph_logs/hpc/create_graph_userV2_%J.err
 # -- end of LSF options --
 
 ### -- specify queue -- 
@@ -20,17 +20,17 @@
 #BSUB -R "span[hosts=1]"
 
 ### -- specify that we need X GB of memory per core/slot -- 
-#BSUB -R "rusage[mem=16GB]"
+#BSUB -R "rusage[mem=64GB]"
 
 ### -- set walltime limit: hh:mm --
 #BSUB -W 24:00
 
 ### -- set the email address --
-#BSUB -u s204163@student.dtu.dk
+###BSUB -u s204115@student.dtu.dk
 ### -- send notification at start --
 ##BSUB -B
 ### -- send notification at completion--
 ##BSUB -N
 
-source .env/bin/activate
-python3 graph/graph_structure.py
+source .venv/bin/activate
+python3 graph/create_graph.py

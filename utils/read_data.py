@@ -4,6 +4,7 @@ from random import randint
 
 import pandas as pd
 import bz2
+from tqdm import tqdm
 
 # Prefixes of the properties, see: https://snap.stanford.edu/data/wiki-meta.html
 PREFIXES = ["CATEGORY", "IMAGE ", "MAIN", "TALK", "USER ", "USER_TALK", "OTHER", "EXTERNAL", "TEMPLATE", "COMMENT", "MINOR", "TEXTDATA"]
@@ -15,7 +16,7 @@ N_ROWS = 1632271984                         # The number of rows in the .bz2 fil
 N_REVISIONS = N_ROWS // ROWS_PER_REVISION   # The number of revisions, each revision is 14 rows long
 
 
-def read_revisions(file_path: str, N: int = None, start: int = None, end: int = None, random: bool = False) -> pd.DataFrame:
+def read_revisions(file_path: str, N: int = None, start: int = None, end: int = None, random: bool = False, tqdm_disable : bool = True) -> pd.DataFrame:
     """
     Read and parse N lines of a (large) bzip2 file on the format given in Wikipedia Edits dataset 
     seen in: https://snap.stanford.edu/data/wiki-meta.html
@@ -67,22 +68,22 @@ def read_revisions(file_path: str, N: int = None, start: int = None, end: int = 
     been created and will be used to significantly speed up look up.
     """
     if random and N:
-        return _read_revisions_random(file_path, N)
+        return _read_revisions_random(file_path, N, tqdm_disable = tqdm_disable)
     elif start and end:
-        return _read_revisions_between(file_path, start, end)
+        return _read_revisions_between(file_path, start, end, tqdm_disable = tqdm_disable)
     elif N:
-        return _read_revisions_from_start(file_path, N)
+        return _read_revisions_from_start(file_path, N, tqdm_disable = tqdm_disable)
     else:
         raise Exception("Error: pass at least N or start+end")
     
 
-def _read_revisions_from_start(file_path: str, N: int = None) -> pd.DataFrame:
+def _read_revisions_from_start(file_path: str, N: int = None, tqdm_disable : bool = True) -> pd.DataFrame:
     """ """
     with bz2.open(file_path, 'rt') as file:
         revisions = []
     
         # There are EXACTLY 14 fields in every revision, we group / bundle them together in a tuple for speed
-        for i, line in enumerate(groups(file, 14)):
+        for i, line in tqdm(enumerate(groups(file, 14)), total=N, disable=tqdm_disable):
             if N <= i:
                 break
 
@@ -91,7 +92,7 @@ def _read_revisions_from_start(file_path: str, N: int = None) -> pd.DataFrame:
         return pd.DataFrame(revisions)
     
 
-def _read_revisions_between(file_path: str, start: int = None, end: int = None) -> pd.DataFrame:
+def _read_revisions_between(file_path: str, start: int = None, end: int = None, tqdm_disable: bool = True) -> pd.DataFrame:
     """ """
     with bz2.open(file_path, 'rt') as file:
         revisions = []
@@ -104,7 +105,7 @@ def _read_revisions_between(file_path: str, start: int = None, end: int = None) 
         file.seek(index_byte_position)
 
         # There are EXACTLY 14 fields in every revision, we group / bundle them together in a tuple for speed
-        for i, line in enumerate(groups(file, 14), start = index_number):
+        for i, line in tqdm(enumerate(groups(file, 14), start = index_number), total=(end-start), disable=tqdm_disable):
             if i < start:
                 continue
             if end <= i:
@@ -116,14 +117,14 @@ def _read_revisions_between(file_path: str, start: int = None, end: int = None) 
 
 
 # OBS OBS OBS TODO: Takes 90 seconds to grab 10 random revisions, should be revised to be faster
-def _read_revisions_random(file_path: str, N: int = None) -> pd.DataFrame:
+def _read_revisions_random(file_path: str, N: int = None, tqdm_disable: bool = True) -> pd.DataFrame:
     """ """
     index = read_index_file(f"/work3/s204163/wiki/index_file{REVISIONS_PER_INDEX}") # TODO: Move elsewhere
     n_indices = len(index)
     revisions = []
 
     with bz2.open(file_path, 'rt') as file:
-        for _ in range(N):
+        for _ in tqdm(range(N), disable=tqdm_disable):
             random_index = randint(0, n_indices - 1)
             random_offset = randint(0, REVISIONS_PER_INDEX)
 
