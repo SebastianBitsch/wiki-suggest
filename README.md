@@ -14,7 +14,14 @@ The recommendation engine consists of two equal parts that together form a recom
     - Notebooks generally contain exploratory analysis and plotting
 
 2. **Articles other people like you have edited**
-    - 
+    All code related to this is in the `graph/` directory
+    - Structuring of the social graph and it's class methods can be found in 'graph_structure.py' which is the backbone of the social graphs
+    - Most of the files are utility functions for the graph structure used for faster, more memory efficient batchjobs
+    - spectral_clustering_from_scratch.py is a file containing a spectral clustering algorithm implemented from scratch
+    - modularity_test.ipynb is a modularity test also implemented from scratch.
+    - The girvan_newman implementation can be found at graph_girvan_newman.py
+    - Due to the nature of large social graph, one has to carefully analyse the graph structure before construction in order to balance the amount of Nodes and Edges. create_graph.py create a social graph with only editors/users as nodes, meanwhile create_graph_articles creates a bi-partite social graph with editors/users and articles as nodes. The latter is used for the recommendation engine.
+
 
 
 ## Practicals
