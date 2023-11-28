@@ -216,7 +216,20 @@ def read_index_file(file_path: str) -> dict:
     return index
 
 
-def read_articles_file(file_path: str, N: int = None, return_titles: bool = False) -> dict:
+def read_article_ids_file(file_path: str, N: int = None) -> dict:
+    """ Read N article ids a list"""
+    article_ids = []
+    with open(file_path, 'r') as file:
+        for i, line in enumerate(file):
+            if N and N <= i:
+                break
+            else:
+                article_ids.append(int(line.strip()))
+
+    return article_ids
+
+
+def read_articles_file(file_path: str, N: int = None, read_titles: bool = False, return_titles: bool = False, delimiter: str = DELIMITER) -> dict:
     """
     Create a dictionary of article-id : (title, text) pairs of every article in the good texts dataset.
     Option to only read N articles
@@ -229,7 +242,10 @@ def read_articles_file(file_path: str, N: int = None, return_titles: bool = Fals
             # Check if we are only fetching a subset of the data
             if N and N <= i:
                 break
-            article_id, article_title, article_text = line.split(DELIMITER)
+            if read_titles:
+                article_id, article_title, article_text = line.split(delimiter)
+            else: 
+                article_id, article_text = line.split(delimiter)
 
             # Write to dictionary
             text = (article_title, article_text) if return_titles else article_text
