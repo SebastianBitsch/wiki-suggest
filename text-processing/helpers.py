@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA # We havent implemented PCA ourselves, just use sklearn
 
 
 def calculate_average_radius(points, labels, centroids):
@@ -51,8 +51,9 @@ def davies_bouldin_score(points, labels, centroids):
 ## ------------ Plotting ------------
 
 def scatter(points, centroids = None, colors = "red", title = "", figsize = (5,5)):
+    """ Helper function for scattering 2D points """
     plt.figure(figsize = figsize)
-    plt.scatter(points[:,0], points[:,1], c=colors, cmap="Set1")
+    plt.scatter(points[:,0], points[:,1], c=colors, cmap="hsv")
     if not centroids is None:
         plt.scatter(centroids[:,0], centroids[:,1], c='black', marker='x')
     
@@ -60,7 +61,7 @@ def scatter(points, centroids = None, colors = "red", title = "", figsize = (5,5
     plt.show()
 
 
-def pca(X, labels, title = "", n_components = 2, figsize = (5,5)):
+def pca(X, labels, centroids = None, title = "", n_components = 2, figsize = (5,5)):
     """ Function for using the sklearn pca function for visualizing our clusteirng in 2D """
     plt.figure(figsize = figsize)
     pca = PCA(n_components = n_components)
@@ -68,7 +69,10 @@ def pca(X, labels, title = "", n_components = 2, figsize = (5,5)):
 
     x, y = X_pca.T
     labels = labels if type(labels) == list else labels.tolist()
-    scatter = plt.scatter(x, y, c = labels, cmap="Set1", label = labels, alpha=0.3)
+    scatter = plt.scatter(x, y, c = labels, cmap="hsv", label = labels, alpha=0.1)
+    if not centroids is None:
+        centroids = pca.transform(centroids)
+        plt.scatter(centroids[:,0], centroids[:,1], c='black', marker='x')
     plt.legend(*scatter.legend_elements())
 
     plt.title(title)

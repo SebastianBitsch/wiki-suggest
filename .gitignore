@@ -1,5 +1,4 @@
 .env
-/logs
 __pycache__
 wiki_suggests.egg-info
 
